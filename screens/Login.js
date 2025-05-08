@@ -1,25 +1,48 @@
-import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert, Keyboard } from 'react-native';
 import React, { useState } from 'react';
+import { auth } from '../credenciales'; // Importa la instancia de autenticación
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Importa el método de inicio de sesión
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  const handleLogin = () => {
-    // Aquí puedes agregar lógica de validación si es necesario
-    if (email && password) {
-      navigation.navigate('Home'); // Navega a la pantalla "Home"
-    } else {
-      Alert.alert('Error', 'Por favor ingresa tus credenciales.');
+    // Manejar el estado del teclado
+    React.useEffect(() => {
+      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+        setIsKeyboardVisible(true);
+      });
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setIsKeyboardVisible(false);
+      });
+
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }, []);
+    
+    //logica de inicio de sesión
+  const handleLogin = async () => {
+    try {
+      // Lógica de inicio de sesión con Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Usuario logueado:', userCredential.user);
+      navigation.replace('Home'); // Navega a la pantalla "Home" después de iniciar sesión
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Correo o contraseña incorrectos.');
     }
   };
 
   return (
-    <View style={styles.padre}>
+    <View style={[styles.padre, isKeyboardVisible && styles.padreConTeclado]}>
       <View>
         <Image source={require('../assets/logo.png')} style={styles.logo} />
         <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'black' }}>League of Love</Text>
       </View>
+
       <View style={styles.tarjeta}>
         <View style={styles.cajaTexto}>
           <TextInput
@@ -44,21 +67,21 @@ export default function Login({ navigation }) {
             <Text style={{ color: 'white', textAlign: 'center' }}>Iniciar Sesión</Text>
           </TouchableOpacity>
         </View>
-        <View> 
-            <TouchableOpacity
-                style={{ marginTop: 20, alignSelf: 'center' }}
-                onPress={() => navigation.navigate('Register')} // Navega a la pantalla de registro
-            >
-                <Text style={{ color: 'blue' }}>¿No tienes cuenta? Regístrate aquí</Text>
-            </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            style={{ marginTop: 20, alignSelf: 'center' }}
+            onPress={() => navigation.navigate('Register')} // Navega a la pantalla de registro
+          >
+            <Text style={{ color: 'blue' }}>¿No tienes cuenta? Regístrate aquí</Text>
+          </TouchableOpacity>
         </View>
         <View>
-            <TouchableOpacity
-                style={{ marginTop: 20, alignSelf: 'center' }}
-                onPress={() => navigation.navigate('ForgotPassword')} // Navega a la pantalla de recuperación de contraseña
-            >
-                <Text style={{ color: 'blue' }}>¿Olvidaste tu contraseña?</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginTop: 20, alignSelf: 'center' }}
+            onPress={() => navigation.navigate('ForgotPassword')} // Navega a la pantalla de recuperación de contraseña
+          >
+            <Text style={{ color: 'blue' }}>¿Olvidaste tu contraseña?</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -71,6 +94,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+  },
+  padreConTeclado: {
+    marginTop: -100, // Mueve la vista hacia arriba cuando el teclado está visible
   },
   logo: {
     width: 200,
