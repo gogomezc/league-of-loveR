@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from './screens/Login';
 import Home from './screens/Home';
 import Registrarse from './screens/registrarse';
+import Perfil from './screens/Perfil';
 
 const Stack = createStackNavigator();
 
@@ -41,8 +42,18 @@ export default function App() {
             headerTintColor: 'gold',
             headerTitleStyle: { fontSize: 24 },
             headerStyle: { backgroundColor: 'white' },
-          }}/>
-        
+          }}
+        />
+          <Stack.Screen
+          name="Perfil"
+          component={Perfil}
+          options={{
+            headerTitleAlign: 'center',
+            headerTintColor: 'gold',
+            headerTitleStyle: { fontSize: 24 },
+            headerStyle: { backgroundColor: 'white' },
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,35 +1,40 @@
-import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert, Keyboard } from 'react-native';
 import React, { useState } from 'react';
-import { auth } from '../credenciales'; // Importa la instancia de autenticación
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Importa el método de inicio de sesión
+import {
+  Text,
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Image,
+} from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../credenciales';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-    // Manejar el estado del teclado
-    React.useEffect(() => {
-      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-        setIsKeyboardVisible(true);
-      });
-      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-        setIsKeyboardVisible(false);
-      });
-
-      return () => {
-        showSubscription.remove();
-        hideSubscription.remove();
-      };
-    }, []);
-    
-    //logica de inicio de sesión
   const handleLogin = async () => {
     try {
-      // Lógica de inicio de sesión con Firebase
+      // 1. Autenticación con Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Usuario logueado:', userCredential.user);
-      navigation.replace('Home'); // Navega a la pantalla "Home" después de iniciar sesión
+      const uid = userCredential.user.uid;
+
+      // 2. Obtener perfil desde Firestore
+      const docRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const perfil = docSnap.data();
+        console.log('Perfil cargado:', perfil);
+
+        // 3. Navegar a la siguiente pantalla (ej: Home)
+        navigation.replace('Home', { perfil });
+      } else {
+        Alert.alert('Error', 'No se encontró el perfil del usuario.');
+      }
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Correo o contraseña incorrectos.');
@@ -37,85 +42,77 @@ export default function Login({ navigation }) {
   };
 
   return (
-    <View style={[styles.padre, isKeyboardVisible && styles.padreConTeclado]}>
-      <View>
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
-        <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'black' }}>League of Love</Text>
-      </View>
+    <View style={styles.container}>
+      <Image source={require('../assets/logo.png')} style={styles.logo} />
+      <Text style={styles.title}>Iniciar sesión</Text>
 
-      <View style={styles.tarjeta}>
-        <View style={styles.cajaTexto}>
-          <TextInput
-            placeholder="Correo"
-            value={email}
-            onChangeText={setEmail}
-            style={{ borderBottomWidth: 1, marginBottom: 20 }}
-          />
-          <TextInput
-            placeholder="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-            style={{ borderBottomWidth: 1, marginBottom: 20 }}
-          />
-        </View>
-        <View>
-          <TouchableOpacity
-            style={{ backgroundColor: 'gold', padding: 10, borderRadius: 10 }}
-            onPress={handleLogin} // Llama a la función handleLogin al presionar
-          >
-            <Text style={{ color: 'white', textAlign: 'center' }}>Iniciar Sesión</Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={{ marginTop: 20, alignSelf: 'center' }}
-            onPress={() => navigation.navigate('Register')} // Navega a la pantalla de registro
-          >
-            <Text style={{ color: 'blue' }}>¿No tienes cuenta? Regístrate aquí</Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={{ marginTop: 20, alignSelf: 'center' }}
-            onPress={() => navigation.navigate('ForgotPassword')} // Navega a la pantalla de recuperación de contraseña
-          >
-            <Text style={{ color: 'blue' }}>¿Olvidaste tu contraseña?</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <TextInput
+        placeholder="Correo"
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+
+      <TextInput
+        placeholder="Contraseña"
+        style={styles.input}
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Ingresar</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{ marginTop: 20, alignSelf: 'center' }}
+        onPress={() => navigation.navigate('Register')}
+      >
+        <Text style={{ color: 'blue' }}>¿No tienes cuenta? Regístrate aquí</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  padre: {
-    flex: 2,
+  container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
-  },
-  padreConTeclado: {
-    marginTop: -100, // Mueve la vista hacia arriba cuando el teclado está visible
+    backgroundColor: '#fff',
+    padding: 20,
   },
   logo: {
     width: 200,
     height: 200,
     borderRadius: 100,
   },
-  tarjeta: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    width: '90%',
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: 'gold',
+    padding: 15,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
