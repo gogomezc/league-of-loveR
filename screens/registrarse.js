@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   StyleSheet,
@@ -7,11 +7,15 @@ import {
   TouchableOpacity,
   Alert,
   Image,
-  Keyboard,
+  ImageBackground,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../credenciales'; // asegúrate que exportes `db` desde credenciales.js
+import { auth, db } from '../credenciales';
 
 export default function Registrarse({ navigation }) {
   const [email, setEmail] = useState('');
@@ -19,38 +23,25 @@ export default function Registrarse({ navigation }) {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [nickname, setNickname] = useState('');
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
-  // Detectar visibilidad del teclado
-  useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', () => setIsKeyboardVisible(true));
-    const hide = Keyboard.addListener('keyboardDidHide', () => setIsKeyboardVisible(false));
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, []);
 
   const handleRegister = async () => {
-    if (!email || !password || !name || !age || !nickname) {
+    if (!email || !password || !name  ) {
       Alert.alert('Error', 'Por favor completa todos los campos.');
       return;
     }
 
     try {
-      // 1. Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
 
-      // 2. Crear perfil en Firestore
       await setDoc(doc(db, 'users', uid), {
         name,
         age: parseInt(age),
         nickname,
-        email,         // opcional pero útil
-        photoURL: "",  // se puede actualizar después
-        swipes: [],
-        matches: []
+        email,
+        photoURL: '',
+        swipes: { like: [], dislike: [] },
+        matches: {},
       });
 
       Alert.alert('Registro exitoso');
@@ -62,56 +53,99 @@ export default function Registrarse({ navigation }) {
   };
 
   return (
-    <View style={[styles.container, isKeyboardVisible && styles.containerConTeclado]}>
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
-      <Text style={styles.title}>Registrarse</Text>
+    <ImageBackground
+      source={require('../assets/registrarseF.jpg')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <StatusBar barStyle="light-content" />
+      <View style={styles.overlay} />
 
-      <TextInput placeholder="Nombre" style={styles.input} value={name} onChangeText={setName} />
-      <TextInput placeholder="Edad" style={styles.input} value={age} onChangeText={setAge} keyboardType="numeric" />
-      <TextInput placeholder="Nickname LoL" style={styles.input} value={nickname} onChangeText={setNickname} />
-      <TextInput placeholder="Correo" style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <TextInput placeholder="Contraseña" style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Image source={require('../assets/logosf.png')} style={styles.logo} />
+          <Text style={styles.title}>Registrarse</Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Registrarse</Text>
-      </TouchableOpacity>
+          <TextInput
+            placeholder="Nombre"
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholderTextColor="#ccc"
+          />
+    
+          <TextInput
+            placeholder="Correo"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            placeholderTextColor="#ccc"
+          />
+          <TextInput
+            placeholder="Contraseña"
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholderTextColor="#ccc"
+          />
 
-      <TouchableOpacity style={{ marginTop: 20, alignSelf: 'center' }} onPress={() => navigation.navigate('Login')}>
-        <Text style={{ color: 'blue' }}>¿Ya tienes cuenta? Inicia sesión aquí</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Registrarse</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{ marginTop: 20, alignSelf: 'center' }}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={{ color: 'white' }}>¿Ya tienes cuenta? Inicia sesión aquí</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)', // Fondo más oscuro
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 20,
   },
-  containerConTeclado: {
-    marginTop: -200,
-  },
   logo: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 180,
+    height: 180,
+    marginBottom: 10,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
+    color: 'white',
     marginBottom: 20,
   },
   input: {
     width: '100%',
     height: 50,
+    backgroundColor: 'rgba(255,255,255,0.1)', // Fondo suave del input
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: 'white',
     borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    color: 'white',
+    fontWeight: '500',
   },
   button: {
     backgroundColor: 'gold',

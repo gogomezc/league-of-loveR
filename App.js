@@ -16,42 +16,26 @@ export default function App() {
           name="Login"
           component={Login}
           options={{
-            headerTitleAlign: 'center',
-            headerTintColor: 'gold',
-            headerTitleStyle: { fontSize: 24 },
-            headerStyle: { backgroundColor: 'white' },
+          headerShown: false,
           }}
         />
         <Stack.Screen
           name="Home"
           component={Home}
-          options={{
-            gestureEnabled: false,
-            headerTitleAlign: 'center',
-            headerTintColor: 'gold',
-            headerTitleStyle: { fontSize: 24 },
-            headerStyle: { backgroundColor: 'white' },
-          }}
+         options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Register"
           component={Registrarse}
           options={{
-            gestureEnabled: false,
-            headerTitleAlign: 'center',
-            headerTintColor: 'gold',
-            headerTitleStyle: { fontSize: 24 },
-            headerStyle: { backgroundColor: 'white' },
+          headerShown: false,
           }}
         />
           <Stack.Screen
           name="Perfil"
           component={Perfil}
           options={{
-            headerTitleAlign: 'center',
-            headerTintColor: 'gold',
-            headerTitleStyle: { fontSize: 24 },
-            headerStyle: { backgroundColor: 'white' },
+              headerShown: false,
           }}
         />
       </Stack.Navigator>

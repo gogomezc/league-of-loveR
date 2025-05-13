@@ -7,10 +7,13 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ImageBackground,
+  SafeAreaView,
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../credenciales';
+import { StatusBar } from 'react-native';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -18,19 +21,14 @@ export default function Login({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      // 1. Autenticación con Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
 
-      // 2. Obtener perfil desde Firestore
       const docRef = doc(db, 'users', uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const perfil = docSnap.data();
-        console.log('Perfil cargado:', perfil);
-
-        // 3. Navegar a la siguiente pantalla (ej: Home)
         navigation.replace('Home', { perfil });
       } else {
         Alert.alert('Error', 'No se encontró el perfil del usuario.');
@@ -41,57 +39,76 @@ export default function Login({ navigation }) {
     }
   };
 
+
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
-      <Text style={styles.title}>Iniciar sesión</Text>
+    <ImageBackground
+      source={require('../assets/fondo.jpg')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <StatusBar barStyle="light-content" />
+      <View style={styles.overlay} />
+      <SafeAreaView style={styles.container}>
+        <Image source={require('../assets/logosf.png')} style={styles.logo} />
+        <Text style={styles.title}>Iniciar sesión</Text>
 
-      <TextInput
-        placeholder="Correo"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
+        <TextInput
+          placeholder="Correo"
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          placeholderTextColor="#ccc"
+        />
 
-      <TextInput
-        placeholder="Contraseña"
-        style={styles.input}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <TextInput
+          placeholder="Contraseña"
+          style={styles.input}
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          placeholderTextColor="#ccc"
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Ingresar</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Ingresar</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={{ marginTop: 20, alignSelf: 'center' }}
-        onPress={() => navigation.navigate('Register')}
-      >
-        <Text style={{ color: 'blue' }}>¿No tienes cuenta? Regístrate aquí</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={{ marginTop: 20, alignSelf: 'center' }}
+          onPress={() => navigation.replace('Register')}
+        >
+          <Text style={{ color: 'white' }}>¿No tienes cuenta? Regístrate aquí</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 20,
   },
   logo: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    marginBottom: 10,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
+    color: 'white',
     marginBottom: 20,
   },
   input: {
@@ -102,6 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
+    color: 'white',
   },
   button: {
     backgroundColor: 'gold',
