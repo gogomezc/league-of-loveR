@@ -7,6 +7,11 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ImageBackground,
+  StatusBar,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { auth, db } from '../credenciales';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -31,7 +36,6 @@ export default function Perfil({ navigation }) {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setPerfil(docSnap.data());
-        console.log('Perfil cargado:', docSnap.data());
       } else {
         Alert.alert('Error', 'No se encontró el perfil.');
       }
@@ -67,91 +71,126 @@ export default function Perfil({ navigation }) {
 
   if (loading || !perfil) {
     return (
-      <View style={styles.container}>
-        <Text>Cargando perfil...</Text>
+      <View style={styles.center}>
+        <Text style={{ color: 'white' }}>Cargando perfil...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Perfil</Text>
+    <ImageBackground
+      source={require('../assets/perfilF.jpg')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <StatusBar barStyle="light-content" />
+      <View style={styles.overlay} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        value={perfil.name}
-        onChangeText={(text) => setPerfil({ ...perfil, name: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Edad"
-        value={perfil.age ? perfil.age.toString() : ''}
-        onChangeText={(text) => setPerfil({ ...perfil, age: parseInt(text) || 0 })}
-        keyboardType="numeric"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Nickname"
-        value={perfil.nickname}
-        onChangeText={(text) => setPerfil({ ...perfil, nickname: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Link de imagen de perfil"
-        value={perfil.photoURL}
-        onChangeText={(text) => setPerfil({ ...perfil, photoURL: text })}
-      />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>Mi Perfil</Text>
 
-      {perfil.photoURL ? (
-        <Image source={{ uri: perfil.photoURL }} style={styles.avatar} />
-      ) : (
-        <View style={[styles.avatar, styles.avatarPlaceholder]}>
-          <Text>Sin foto</Text>
-        </View>
-      )}
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre"
+            value={perfil.name}
+            onChangeText={(text) => setPerfil({ ...perfil, name: text })}
+            placeholderTextColor="#ccc"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Edad"
+            value={perfil.age ? perfil.age.toString() : ''}
+            onChangeText={(text) => setPerfil({ ...perfil, age: parseInt(text) || 0 })}
+            keyboardType="numeric"
+            placeholderTextColor="#ccc"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Nickname"
+            value={perfil.nickname}
+            onChangeText={(text) => setPerfil({ ...perfil, nickname: text })}
+            placeholderTextColor="#ccc"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Link de imagen de perfil"
+            value={perfil.photoURL}
+            onChangeText={(text) => setPerfil({ ...perfil, photoURL: text })}
+            placeholderTextColor="#ccc"
+          />
 
-      <TouchableOpacity style={styles.button} onPress={guardarCambios}>
-        <Text style={styles.buttonText}>Guardar Cambios</Text>
-      </TouchableOpacity>
+          {perfil.photoURL ? (
+            <Image source={{ uri: perfil.photoURL }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Text style={{ color: 'white' }}>Sin foto</Text>
+            </View>
+          )}
 
-      <TouchableOpacity style={styles.deleteButton} onPress={eliminarPerfil}>
-        <Text style={styles.deleteButtonText}>Eliminar Perfil</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity style={styles.button} onPress={guardarCambios}>
+            <Text style={styles.buttonText}>Guardar Cambios</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.deleteButton} onPress={eliminarPerfil}>
+            <Text style={styles.deleteButtonText}>Eliminar Perfil</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    padding: 20,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 20,
   },
   input: {
     width: '100%',
     height: 50,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#fff',
     borderRadius: 8,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     marginBottom: 15,
+    color: 'white',
   },
   avatar: {
     width: 150,
     height: 150,
     borderRadius: 75,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#c89b3c',
   },
   avatarPlaceholder: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#444',
     justifyContent: 'center',
     alignItems: 'center',
   },
