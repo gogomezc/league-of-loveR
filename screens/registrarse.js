@@ -25,8 +25,9 @@ export default function Registrarse({ navigation }) {
   const [nickname, setNickname] = useState('');
 
   const handleRegister = async () => {
-    if (!email || !password || !name  ) {
-      Alert.alert('Error', 'Por favor completa todos los campos.');
+    if (!email || !password || !name || !age) {
+      // Validación simple para asegurarse de que todos los campos estén completos
+      Alert.alert('Campos incompletos!', 'Por favor completa todos los campos.');
       return;
     }
 
@@ -39,7 +40,7 @@ export default function Registrarse({ navigation }) {
         age: parseInt(age),
         nickname,
         email,
-        photoURL: '',
+        photoURL: "https://i.pinimg.com/736x/55/d7/dc/55d7dc610a289612cd2b49654bf0e1ea.jpg", // URL de la foto de perfil por defecto
         swipes: { like: [], dislike: [] },
         matches: {},
       });
@@ -76,7 +77,6 @@ export default function Registrarse({ navigation }) {
             onChangeText={setName}
             placeholderTextColor="#ccc"
           />
-    
           <TextInput
             placeholder="Correo"
             style={styles.input}
@@ -93,6 +93,22 @@ export default function Registrarse({ navigation }) {
             secureTextEntry
             placeholderTextColor="#ccc"
           />
+          <TextInput
+            placeholder="Edad"
+            style={styles.input}
+            value={age}
+            onChangeText={setAge} 
+            keyboardType="numeric"
+            placeholderTextColor="#ccc"
+          />        
+          <TextInput
+            placeholder="Apodo (opcional)"
+            style={styles.input}
+            value={nickname}
+            onChangeText={setNickname}
+            placeholderTextColor="#ccc"
+          />            
+
 
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Registrarse</Text>

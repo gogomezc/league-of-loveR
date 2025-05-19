@@ -43,7 +43,7 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight }) {
       <Animated.View style={[styles.card, animatedStyle]}>
         <Image source={{ uri: usuario.photoURL }} style={styles.foto} />
         <View style={styles.info}>
-          <Text style={styles.nombre}>{usuario.matches?.name || usuario.nickname}</Text>
+          <Text style={styles.nombre}>{usuario.matches?.name || usuario.name} - {usuario.matches?.name || usuario.nickname}</Text>
           <Text style={styles.edad}>{usuario.age} años</Text>
         </View>
       </Animated.View>
