@@ -172,7 +172,7 @@ export default function Registrarse({ navigation }) {
               <Picker.Item label="Superior (Toplaner)" value="top" />
               <Picker.Item label="Jungla (JG)" value="jungla" />
               <Picker.Item label="Central (Midlaner)" value="mid" />
-              <Picker.Item label="Tirador (ADC)" value="adc" />
+              <Picker.Item label="Tirador (ADC - Botlaner)" value="adc" />
               <Picker.Item label="Soporte (Support)" value="soporte" />
             </Picker>
           </View>
