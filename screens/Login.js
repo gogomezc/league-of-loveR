@@ -15,6 +15,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../credenciales';
 import { StatusBar } from 'react-native';
 
+
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,7 +50,7 @@ export default function Login({ navigation }) {
       <StatusBar barStyle="light-content" />
       <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
-        <Image source={require('../assets/logosf.png')} style={styles.logo} />
+        <Image source={require('../assets/logossf.png')} style={styles.logo} />
         <Text style={styles.title}>Iniciar sesión</Text>
 
         <TextInput
@@ -100,15 +101,16 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: 350,
+    height: 350,
+    borderRadius: 30,
     marginBottom: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 35,
+    fontStyle: 'italic',
     fontWeight: 'bold',
-    color: 'white',
+    color: '#FFD700', // dorado
     marginBottom: 20,
   },
   input: {

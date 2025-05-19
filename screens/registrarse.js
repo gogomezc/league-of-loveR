@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
 import {
   Text,
   StyleSheet,
@@ -23,6 +24,7 @@ export default function Registrarse({ navigation }) {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [nickname, setNickname] = useState('');
+  const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
 
   const handleRegister = async () => {
     if (!email || !password || !name || !age) {
@@ -40,6 +42,7 @@ export default function Registrarse({ navigation }) {
         age: parseInt(age),
         nickname,
         email,
+        rolFavorito, // jungla, soporte, top, adc o mid
         photoURL: "https://i.pinimg.com/736x/55/d7/dc/55d7dc610a289612cd2b49654bf0e1ea.jpg", // URL de la foto de perfil por defecto
         swipes: { like: [], dislike: [] },
         matches: {},
@@ -67,9 +70,25 @@ export default function Registrarse({ navigation }) {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../assets/logosf.png')} style={styles.logo} />
-          <Text style={styles.title}>Registrarse</Text>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: 40,
+              left: 20,
+              zIndex: 10,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              borderRadius: 20,
+              padding: 8,
+            }}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={{ color: 'white', fontSize: 24 }}>{'\u2190'}</Text>
+          </TouchableOpacity>
 
+          <Image source={require('../assets/logossf.png')} style={styles.logo} />
+          <Text style={styles.title}>Registrate aquí</Text>
+
+          <Text style={styles.subtitle}>👤 Datos personales</Text>
           <TextInput
             placeholder="Nombre"
             style={styles.input}
@@ -97,18 +116,36 @@ export default function Registrarse({ navigation }) {
             placeholder="Edad"
             style={styles.input}
             value={age}
-            onChangeText={setAge} 
+            onChangeText={setAge}
             keyboardType="numeric"
             placeholderTextColor="#ccc"
-          />        
+          />
           <TextInput
             placeholder="Apodo (opcional)"
             style={styles.input}
             value={nickname}
             onChangeText={setNickname}
             placeholderTextColor="#ccc"
-          />            
+          />
 
+          <Text style={styles.subtitle}>👾 Datos de jugador</Text>
+
+          {/* Menú desplegable para rol favorito */}
+          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+            <Picker
+              selectedValue={rolFavorito}
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setRolFavorito(itemValue)}
+            >
+              <Picker.Item label="Selecciona tu rol favorito..." value="" color="#ccc" />
+              <Picker.Item label="Superior (Toplaner)" value="top" />
+              <Picker.Item label="Jungla (JG)" value="jungla" />
+              <Picker.Item label="Central (Midlaner)" value="mid" />
+              <Picker.Item label="Tirador (ADC)" value="adc" />
+              <Picker.Item label="Soporte (Support)" value="soporte" />
+            </Picker>
+          </View>
 
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Registrarse</Text>
@@ -143,14 +180,20 @@ const styles = StyleSheet.create({
   logo: {
     width: 180,
     height: 180,
-    marginBottom: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 35,
+    fontStyle: 'italic',
     fontWeight: 'bold',
-    color: 'white',
+    color: '#FFD700', // dorado
     marginBottom: 20,
   },
+  subtitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 15,
+  },  
   input: {
     width: '100%',
     height: 50,
