@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';        
 import {
   Text,
   StyleSheet,
@@ -25,6 +26,34 @@ export default function Registrarse({ navigation }) {
   const [age, setAge] = useState('');
   const [nickname, setNickname] = useState('');
   const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
+  const [champFavorito, setChampFavorito] = useState(''); // Nombre del campeón favorito
+           
+  const [champions, setChampions] = useState([]);  // <-- listará todos los campeones  
+
+
+  //  al montar el componente, traemos la lista de campeones
+  useEffect(() => {
+    const fetchChampions = async () => {
+      try {
+        // Obtenemos la lista de versiones para escoger la última
+        const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+        const latestVersion = versionsRes.data[0];
+        // Con la versión más reciente, pedimos todos los campeones
+        const champsRes = await axios.get(
+          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+        );
+        // Transformamos el objeto en un array de { key, name }
+        const champsArray = Object.values(champsRes.data.data).map(item => ({
+          key: item.id,      // ej. "Aatrox"
+          name: item.name,   // ej. "Aatrox"
+        }));
+        setChampions(champsArray);  // <-- guardamos en el estado
+      } catch (error) {
+        console.error('Error cargando lista de campeones:', error);
+      }
+    };
+    fetchChampions();
+  }, []); // <--  dependencia vacía para que corra solo 1 vez
 
   const handleRegister = async () => {
     if (!email || !password || !name || !age) {
@@ -43,6 +72,7 @@ export default function Registrarse({ navigation }) {
         nickname,
         email,
         rolFavorito, // jungla, soporte, top, adc o mid
+        champFavorito,
         photoURL: "https://i.pinimg.com/736x/55/d7/dc/55d7dc610a289612cd2b49654bf0e1ea.jpg", // URL de la foto de perfil por defecto
         swipes: { like: [], dislike: [] },
         matches: {},
@@ -147,6 +177,33 @@ export default function Registrarse({ navigation }) {
             </Picker>
           </View>
 
+          {/* Menú desplegable para campeón favorito */}
+          {/* ─── CAMBIO: Nuevo menú desplegable para campeón favorito ─── */}
+          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+            <Picker
+              selectedValue={champFavorito}                         // <-- CAMBIO: usamos el estado champFavorito
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setChampFavorito(itemValue)}  // <-- CAMBIO: actualizamos champFavorito
+            >
+              {/* Opción por defecto */}
+              <Picker.Item 
+                label="Selecciona tu campeón favorito..." 
+                value="" 
+                color="#ccc" 
+              />
+
+              {/* Generamos dinámicamente un Picker.Item por cada campeón */}
+              {champions.map(champ => (
+                <Picker.Item 
+                  key={champ.key} 
+                  label={champ.name} 
+                  value={champ.key} 
+                />
+              ))}
+            </Picker>
+          </View>            
+
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Registrarse</Text>
           </TouchableOpacity>
@@ -189,7 +246,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subtitle: {
-    fontSize: 26,
+    fontSize: 23,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 15,
