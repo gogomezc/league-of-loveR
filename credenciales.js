@@ -1,27 +1,25 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getStorage } from 'firebase/storage';
-import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { 
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID
+} from '@env';
 
-// Your web app's Firebase configuration
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDUPyQUsjshtFV_6gujyDgYaQC57_WJehQ",
-  authDomain: "league-of-love-bdbc9.firebaseapp.com",
-  projectId: "league-of-love-bdbc9",
-  storageBucket: "league-of-love-bdbc9.firebasestorage.app",
-  messagingSenderId: "185188523061",
-  appId: "1:185188523061:web:ec27d3f58099e23b2e657c"
+  apiKey:              FIREBASE_API_KEY,
+  authDomain:          FIREBASE_AUTH_DOMAIN,
+  projectId:           FIREBASE_PROJECT_ID,
+  messagingSenderId:   FIREBASE_MESSAGING_SENDER_ID,
+  appId:               FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const db = getFirestore(app);   
 
-export { auth, db, storage };
-
-
+// Exporta los servicios que uses
+export const auth    = getAuth(app);
+export const db      = getFirestore(app);

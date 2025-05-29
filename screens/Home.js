@@ -107,7 +107,7 @@ export default function Home() {
 
   return (
     <ImageBackground
-      source={require('../assets/homeF.jpg')} // asegúrate que exista en assets/
+      source={require('../assets/homeF.jpg')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -119,7 +119,23 @@ export default function Home() {
         <ActivityIndicator size="large" color="gold" style={{ flex: 1 }} />
       ) : index >= usuarios.length ? (
         <View style={styles.center}>
-      
+          <Text
+            style={{
+              color: 'gold',
+              fontSize: 25,
+              fontStyle: 'italic',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              padding: 16,
+              borderRadius: 12,
+              alignSelf: 'center',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            No hay más usuarios disponibles... 🥲
+          </Text>
         </View>
       ) : (
         <View style={styles.container}>

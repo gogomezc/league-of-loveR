@@ -45,6 +45,9 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight }) {
         <View style={styles.info}>
           <Text style={styles.nombre}>{usuario.matches?.name || usuario.name} - {usuario.matches?.name || usuario.nickname}</Text>
           <Text style={styles.edad}>{usuario.age} años</Text>
+          {/* Aplica estilos diferentes a cada Text */}
+          <Text style={styles.rolFavorito}>{usuario.rolFavorito}</Text>
+          <Text style={styles.champFavorito}>{usuario.champFavorito}</Text>
         </View>
       </Animated.View>
     </GestureDetector>
@@ -54,8 +57,9 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight }) {
 const styles = StyleSheet.create({
   card: {
     width: width * 0.85,
-    height: width * 1.05,
-    backgroundColor: '#0a0a0a', // fondo negro profundo
+    // Elimina la altura fija para que el card crezca según el contenido
+    // height: width * 1.05,
+    backgroundColor: '#0a0a0a',
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -69,7 +73,8 @@ const styles = StyleSheet.create({
   },
   foto: {
     width: '100%',
-    height: '75%',
+    // Ajusta la altura de la imagen para que no sea fija, por ejemplo:
+    aspectRatio: 1, // cuadrada, o puedes usar otro valor según prefieras
     borderRadius: 14,
     borderWidth: 1,
     resizeMode: 'cover',
@@ -81,11 +86,23 @@ const styles = StyleSheet.create({
   nombre: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#c89b3c', // dorado
+    color: '#c89b3c',
     marginBottom: 6,
   },
   edad: {
     fontSize: 16,
     color: '#ddd',
+  },
+  rolFavorito: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    color: 'yellow',
+  },
+  champFavorito: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    color: 'yellow',
   },
 });

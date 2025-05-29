@@ -6,6 +6,8 @@ import Home from './screens/Home';
 import Registrarse from './screens/registrarse';
 import Perfil from './screens/Perfil';
 
+
+
 const Stack = createStackNavigator();
 
 export default function App() {

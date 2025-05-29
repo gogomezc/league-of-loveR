@@ -9,8 +9,8 @@ module.exports = function (api) {
     plugins: [
       // Plugin para cargar variables desde .env
       ['module:react-native-dotenv', {
-        moduleName: '@env',    // alias que usarás en tu código: `import { MI_VAR } from '@env'`
-        path: '.env',          // ruta a tu archivo de variables (relativa a la raíz)
+        moduleName: '@env',    // alias en código: `import { MI_VAR } from '@env'`
+        path: '.env',          // ruta a archivo de variables (relativa a la raíz)
         safe: false,           // true para exigir un archivo .env.example con todas las variables
         allowUndefined: true,  // no fallará si alguna variable no está definida
       }],

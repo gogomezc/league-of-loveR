@@ -59,13 +59,35 @@ export default function Perfil({ navigation }) {
   };
 
   const eliminarPerfil = async () => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.',
+      [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: async () => {
+        try {
+          await deleteDoc(doc(db, 'users', uid));
+          Alert.alert('Perfil eliminado. Redirigiendo a Login.');
+          navigation.navigate('Login');
+        } catch (error) {
+          console.error(error);
+          Alert.alert('Error', 'No se pudo eliminar el perfil.');
+        }
+        },
+      },
+      ]
+    );
+  };
+
+  const cerrarSesion = async () => {
     try {
-      await deleteDoc(doc(db, 'users', uid));
-      Alert.alert('Perfil eliminado. Redirigiendo a Login.');
       navigation.navigate('Login');
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'No se pudo eliminar el perfil.');
+      Alert.alert('Error', 'No se pudo cerrar sesión.');
     }
   };
 
@@ -79,7 +101,7 @@ export default function Perfil({ navigation }) {
 
   return (
     <ImageBackground
-      source={require('../assets/perfilF.jpg')}
+      source={require('../assets/editarperfil.png')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -91,7 +113,21 @@ export default function Perfil({ navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>Mi Perfil</Text>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: 40,
+              left: 20,
+              zIndex: 10,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              borderRadius: 20,
+              padding: 8,
+            }}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Text style={{ color: 'white', fontSize: 22 }}>🏠</Text>
+          </TouchableOpacity>          
+          <Text style={styles.title}>Mis datos personales</Text>
 
           <TextInput
             style={styles.input}
@@ -138,6 +174,11 @@ export default function Perfil({ navigation }) {
           <TouchableOpacity style={styles.deleteButton} onPress={eliminarPerfil}>
             <Text style={styles.deleteButtonText}>Eliminar Perfil</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button2} onPress={cerrarSesion}>
+            <Text style={styles.buttonText2}>Cerrar Sesión</Text>
+          </TouchableOpacity>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </ImageBackground>
@@ -169,6 +210,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 20,
+    marginTop: 30,
   },
   input: {
     width: '100%',
@@ -199,9 +241,20 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    marginTop: 10,
+    marginTop: 30,
   },
   buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  button2: {
+    backgroundColor: 'rgb(175, 33, 95)', // dorado
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginTop: 30,
+  },
+  buttonText2: {
     color: '#fff',
     fontWeight: 'bold',
   },

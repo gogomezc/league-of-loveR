@@ -31,7 +31,7 @@ export default function Navbar() {
   return (
     <View style={styles.navbar}>
     {/* Logo izquierda con imagen */}
-        <Image source={require('../assets/logosf.png')} style={styles.logoImage} />
+        <Image source={require('../assets/logossf.png')} style={styles.logoImage} />
 
         {/* Avatar derecha */}
       <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>

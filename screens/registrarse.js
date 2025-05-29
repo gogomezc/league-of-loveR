@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
-import axios from 'axios';        
+import axios from 'axios';       
+import { RIOT_API_KEY } from '@env'; 
 import {
   Text,
   StyleSheet,
@@ -28,8 +29,10 @@ export default function Registrarse({ navigation }) {
   const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
   const [champFavorito, setChampFavorito] = useState(''); // Nombre del campeón favorito
            
-  const [champions, setChampions] = useState([]);  // <-- listará todos los campeones  
+  const [champions, setChampions] = useState([]);  //  para listar todos los campeones  
+  const [version, setVersion] = useState(null); 
 
+    //  estados para perfil de invocador enlazado
 
   //  al montar el componente, traemos la lista de campeones
   useEffect(() => {
@@ -38,6 +41,7 @@ export default function Registrarse({ navigation }) {
         // Obtenemos la lista de versiones para escoger la última
         const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
         const latestVersion = versionsRes.data[0];
+        setVersion(latestVersion);  // <-- guardamos la versión más reciente para usarla después
         // Con la versión más reciente, pedimos todos los campeones
         const champsRes = await axios.get(
           `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
@@ -45,7 +49,7 @@ export default function Registrarse({ navigation }) {
         // Transformamos el objeto en un array de { key, name }
         const champsArray = Object.values(champsRes.data.data).map(item => ({
           key: item.id,      // ej. "Aatrox"
-          name: item.name,   // ej. "Aatrox"
+          name: item.name,   // ej. "Aatrox" se ven igual desde que lo trae la API y cmo se guarda en texto 
         }));
         setChampions(champsArray);  // <-- guardamos en el estado
       } catch (error) {
@@ -54,6 +58,14 @@ export default function Registrarse({ navigation }) {
     };
     fetchChampions();
   }, []); // <--  dependencia vacía para que corra solo 1 vez
+
+
+
+
+
+
+
+
 
   const handleRegister = async () => {
     if (!email || !password || !name || !age) {
@@ -76,6 +88,8 @@ export default function Registrarse({ navigation }) {
         photoURL: "https://i.pinimg.com/736x/55/d7/dc/55d7dc610a289612cd2b49654bf0e1ea.jpg", // URL de la foto de perfil por defecto
         swipes: { like: [], dislike: [] },
         matches: {},
+        version,
+        
       });
 
       Alert.alert('Registro exitoso');
@@ -178,31 +192,45 @@ export default function Registrarse({ navigation }) {
           </View>
 
           {/* Menú desplegable para campeón favorito */}
-          {/* ─── CAMBIO: Nuevo menú desplegable para campeón favorito ─── */}
-          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+          <View
+            style={[
+              styles.input,
+              {
+                padding: 0,
+                flexDirection: 'row',       
+                alignItems: 'center',      
+              }
+            ]}
+          >
             <Picker
-              selectedValue={champFavorito}                         // <-- CAMBIO: usamos el estado champFavorito
-              style={{ color: 'white', width: '100%' }}
+              selectedValue={champFavorito}
+              style={{ color: 'white', flex: 1 }}   //  ocupa todo el ancho restante
               dropdownIconColor="white"
-              onValueChange={(itemValue) => setChampFavorito(itemValue)}  // <-- CAMBIO: actualizamos champFavorito
+              onValueChange={setChampFavorito}
             >
-              {/* Opción por defecto */}
-              <Picker.Item 
-                label="Selecciona tu campeón favorito..." 
-                value="" 
-                color="#ccc" 
-              />
-
-              {/* Generamos dinámicamente un Picker.Item por cada campeón */}
+              <Picker.Item label="Selecciona tu campeón favorito..." value="" color="#ccc" />
               {champions.map(champ => (
-                <Picker.Item 
-                  key={champ.key} 
-                  label={champ.name} 
-                  value={champ.key} 
-                />
+                <Picker.Item key={champ.key} label={champ.name} value={champ.key} />
               ))}
             </Picker>
-          </View>            
+
+            {/* Imagen del campeón */}
+            {champFavorito && version && (      //solo si hay selección y versión
+              <Image
+                source={{
+                  uri: `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champFavorito}.png`
+                }}
+                style={{
+                  width: 40,       // tamaño del icono
+                  height: 40,
+                  marginLeft: 8,   // espacio entre picker e imagen
+                }}
+              />
+            )}
+          </View>           
+
+
+
 
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Registrarse</Text>
