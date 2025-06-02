@@ -15,13 +15,40 @@ import {
 } from 'react-native';
 import { auth, db } from '../credenciales';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import axios from 'axios'; // Asegúrate de tener axios instalado
+import { Picker } from '@react-native-picker/picker'; // Asegúrate de tener @react-native-picker/picker instalado
+
+
 
 export default function Perfil({ navigation }) {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
   const uid = auth.currentUser?.uid;
+  const [champions, setChampions] = useState([]);
+  const [version, setVersion] = useState(null);
 
   useEffect(() => {
+
+    const fetchChampions = async () => {
+      try {
+        const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+        const latestVersion = versionsRes.data[0];
+        setVersion(latestVersion);
+        const champsRes = await axios.get(
+          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+        );
+        const champsArray = Object.values(champsRes.data.data).map(item => ({
+          key: item.id,
+          name: item.name,
+        }));
+        setChampions(champsArray);
+      } catch (error) {
+        console.error('Error cargando lista de campeones:', error);
+      }
+    };
+    fetchChampions();
+  
+
     if (!uid) {
       Alert.alert('Sesión expirada', 'Debes iniciar sesión nuevamente.');
       navigation.navigate('Login');
@@ -129,6 +156,15 @@ export default function Perfil({ navigation }) {
           </TouchableOpacity>          
           <Text style={styles.title}>Mis datos personales</Text>
 
+          {perfil.photoURL ? (
+            <Image source={{ uri: perfil.photoURL }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Text style={{ color: 'white' }}>Sin foto</Text>
+            </View>
+          )}
+
+          <Text style={styles.subtitle}>Nombre</Text>
           <TextInput
             style={styles.input}
             placeholder="Nombre"
@@ -159,20 +195,74 @@ export default function Perfil({ navigation }) {
             placeholderTextColor="#ccc"
           />
 
-          {perfil.photoURL ? (
-            <Image source={{ uri: perfil.photoURL }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <Text style={{ color: 'white' }}>Sin foto</Text>
-            </View>
-          )}
+          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+            
+            <Picker
+              selectedValue={perfil.genero}
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setPerfil({ ...perfil, genero: itemValue })}
+            >
+              <Picker.Item label="Selecciona tu género..." value="" color="#ccc" />
+              <Picker.Item label="Masculino ♂️" value="masculino" />
+              <Picker.Item label="Femenino ♀️" value="femenino" />
+              <Picker.Item label="No binario ⚧️" value="no binario" />
+            </Picker>
+          </View>
+
+
+          <Text style={styles.title}>Mis preferencias</Text>
+
+          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+            <Picker
+              selectedValue={perfil.rolFavorito}
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setPerfil({ ...perfil, rolFavorito: itemValue })}
+            >
+              <Picker.Item label="Selecciona tu rol favorito..." value="" color="#ccc" />
+              <Picker.Item label="Superior (Toplaner)" value="top" />
+              <Picker.Item label="Jungla (JG)" value="jungla" />
+              <Picker.Item label="Central (Midlaner)" value="mid" />
+              <Picker.Item label="Tirador (ADC - Botlaner)" value="adc" />
+              <Picker.Item label="Soporte (Support)" value="soporte" />
+            </Picker>
+          </View>
+                    
+          <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
+            <Picker
+              selectedValue={perfil.champFavorito}
+              style={{ color: 'white', flex: 1 }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setPerfil({ ...perfil, champFavorito: itemValue })}
+            >
+              <Picker.Item label="Selecciona tu campeón favorito..." value="" color="#ccc" />
+              {champions.map(champ => (
+                <Picker.Item key={champ.key} label={champ.name} value={champ.key} />
+              ))}
+            </Picker>
+            {perfil.champFavorito && version && (
+              <Image
+                source={{
+                  uri: `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${perfil.champFavorito}.png`
+                }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  marginLeft: -500,
+                }}
+              />
+            )}
+          </View>          
+
+
 
           <TouchableOpacity style={styles.button} onPress={guardarCambios}>
-            <Text style={styles.buttonText}>Guardar Cambios</Text>
+            <Text style={styles.buttonText}>Guardar Cambios 💾</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.deleteButton} onPress={eliminarPerfil}>
-            <Text style={styles.deleteButtonText}>Eliminar Perfil</Text>
+            <Text style={styles.deleteButtonText}>Eliminar Perfil 🚯</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button2} onPress={cerrarSesion}>
@@ -209,8 +299,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 20,
-    marginTop: 30,
+    marginBottom: 30,
+    marginTop: 80,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#fff',
+    marginBottom: 10,
+    marginRight: 280,
   },
   input: {
     width: '100%',
@@ -218,7 +314,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
     borderColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 16,
     paddingHorizontal: 15,
     marginBottom: 15,
     color: 'white',

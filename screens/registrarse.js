@@ -25,6 +25,7 @@ export default function Registrarse({ navigation }) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
+  const [genero, setGenero] = useState(''); // masculino, femenino o no binario
   const [nickname, setNickname] = useState('');
   const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
   const [champFavorito, setChampFavorito] = useState(''); // Nombre del campeón favorito
@@ -63,12 +64,8 @@ export default function Registrarse({ navigation }) {
 
 
 
-
-
-
-
   const handleRegister = async () => {
-    if (!email || !password || !name || !age) {
+    if (!email || !password || !name || !age || !genero || !rolFavorito || !champFavorito) {
       // Validación simple para asegurarse de que todos los campos estén completos
       Alert.alert('Campos incompletos!', 'Por favor completa todos los campos.');
       return;
@@ -81,6 +78,7 @@ export default function Registrarse({ navigation }) {
       await setDoc(doc(db, 'users', uid), {
         name,
         age: parseInt(age),
+        genero, // masculino, femenino o no binario
         nickname,
         email,
         rolFavorito, // jungla, soporte, top, adc o mid
@@ -171,6 +169,20 @@ export default function Registrarse({ navigation }) {
             onChangeText={setNickname}
             placeholderTextColor="#ccc"
           />
+          {/* Menú desplegable para género */}
+          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+            <Picker
+              selectedValue={genero}
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setGenero(itemValue)}
+            >
+              <Picker.Item label="Selecciona tu género..." value="" color="#ccc" />
+              <Picker.Item label="Masculino ♂️" value="masculino" />
+              <Picker.Item label="Femenino ♀️" value="femenino" />
+              <Picker.Item label="No binario ⚧️" value="no binario" />
+            </Picker>
+          </View>
 
           <Text style={styles.subtitle}>👾 Datos de jugador</Text>
 

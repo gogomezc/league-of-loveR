@@ -20,12 +20,14 @@ import {
 } from 'firebase/firestore';
 import CardSwipe from '../components/CardSwipe';
 import Navbar from '../components/navbar';
+import axios from 'axios';
 
 export default function Home() {
   const [usuarios, setUsuarios] = useState([]);
   const [index, setIndex] = useState(0);
   const [cargando, setCargando] = useState(true);
   const uidActual = auth.currentUser?.uid;
+  const [version, setVersion] = useState('');
 
   useEffect(() => {
     if (!uidActual) return;
@@ -53,6 +55,16 @@ export default function Home() {
     });
 
     return () => unsubscribe();
+
+    const fetchVersion = async () => {
+      try {
+        const res = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+        setVersion(res.data[0]);
+      } catch (error) {
+        console.error('Error obteniendo versión de LoL:', error);
+      }
+    };
+    fetchVersion();
   }, [uidActual]);
 
   const handleSwipe = async tipo => {
@@ -144,6 +156,8 @@ export default function Home() {
               usuario={usuarios[index]}
               onSwipeLeft={() => handleSwipe('dislike')}
               onSwipeRight={() => handleSwipe('like')}
+              version={version}
+
             />
           </View>
         </View>

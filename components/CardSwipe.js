@@ -11,7 +11,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = width * 0.3;
 
-export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight }) {
+export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version }) {
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
 
@@ -37,17 +37,41 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight }) {
       { rotate: `${rotate.value}deg` },
     ],
   }));
+  const champIconUrl = usuario.champFavorito && version
+    ? `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${usuario.champFavorito}.png`
+    : null;
 
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.card, animatedStyle]}>
         <Image source={{ uri: usuario.photoURL }} style={styles.foto} />
         <View style={styles.info}>
-          <Text style={styles.nombre}>{usuario.matches?.name || usuario.name} - {usuario.matches?.name || usuario.nickname}</Text>
-          <Text style={styles.edad}>{usuario.age} años</Text>
-          {/* Aplica estilos diferentes a cada Text */}
-          <Text style={styles.rolFavorito}>{usuario.rolFavorito}</Text>
-          <Text style={styles.champFavorito}>{usuario.champFavorito}</Text>
+          <Text style={styles.nombre}>
+            {usuario.name}
+            {usuario.nickname ? ` (${usuario.nickname})` : ''}
+          </Text>
+          <Text style={styles.campo}>Edad: <Text style={styles.valor}>{usuario.age} años</Text></Text>
+          <Text style={styles.campo}>Género: <Text style={styles.valor}>{usuario.genero}</Text></Text>
+          <Text style={styles.campo}>Rol favorito: <Text style={styles.valor}>{usuario.rolFavorito}</Text></Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+            <Text style={styles.campo}>Campeón favorito: </Text>
+            <Text style={styles.valor}>{usuario.champFavorito}</Text>
+            {champIconUrl && (
+              <Image
+                source={{ uri: champIconUrl }}
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 6,
+                  marginLeft: 8,
+                  borderWidth: 1,
+                  borderColor: '#c89b3c',
+                  backgroundColor: '#222',
+                }}
+              />
+            )}
+          </View>
+         
         </View>
       </Animated.View>
     </GestureDetector>
@@ -104,5 +128,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontStyle: 'italic',
     color: 'yellow',
+  },
+  campo: {
+    fontSize: 16,
+    color: '#c89b3c',
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+  valor: {
+    color: '#fff',
+    fontWeight: 'normal',
   },
 });
