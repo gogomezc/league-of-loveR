@@ -16,11 +16,15 @@ import {
   getDoc,
   updateDoc,
   addDoc,
+  setDoc,
   serverTimestamp,
 } from 'firebase/firestore';
 import CardSwipe from '../components/CardSwipe';
 import Navbar from '../components/navbar';
 import axios from 'axios';
+import { TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // O el ícono que prefieras
 
 export default function Home() {
   const [usuarios, setUsuarios] = useState([]);
@@ -28,8 +32,17 @@ export default function Home() {
   const [cargando, setCargando] = useState(true);
   const uidActual = auth.currentUser?.uid;
   const [version, setVersion] = useState('');
-
+  const navigation = useNavigation();
   useEffect(() => {
+    const fetchVersion = async () => {
+      try {
+        const res = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+        setVersion(res.data[0]);
+      } catch (error) {
+        console.error('Error obteniendo versión de LoL:', error);
+      }
+    };
+    fetchVersion();
     if (!uidActual) return;
 
     const q = collection(db, 'users');
@@ -56,15 +69,7 @@ export default function Home() {
 
     return () => unsubscribe();
 
-    const fetchVersion = async () => {
-      try {
-        const res = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
-        setVersion(res.data[0]);
-      } catch (error) {
-        console.error('Error obteniendo versión de LoL:', error);
-      }
-    };
-    fetchVersion();
+
   }, [uidActual]);
 
   const handleSwipe = async tipo => {
@@ -99,11 +104,21 @@ export default function Home() {
       if (otrosw.includes(uidActual)) {
         Alert.alert('💘 ¡Es un match!');
 
-        await addDoc(collection(db, 'matches'), {
+        // 1. Crea el match y obtén el ID del documento
+        const matchRef = await addDoc(collection(db, 'matches'), {
           usuarios: [uidActual, usuarioSwipeado.id],
           timestamp: serverTimestamp(),
-          chatId: null,
+          chatId: null, // temporalmente null
         });
+
+        // 2. Usa el ID del match como chatId
+        const chatId = matchRef.id;
+
+        // 3. Actualiza el match con el chatId
+        await setDoc(doc(db, 'matches', chatId), { chatId }, { merge: true });
+
+        // 4. Crea el documento del chat (vacío, solo para inicializar)
+        await setDoc(doc(db, 'chats', chatId), {});
 
         await updateDoc(miRef, {
           [`matches.${usuarioSwipeado.id}`]: true,
@@ -126,7 +141,25 @@ export default function Home() {
       <StatusBar barStyle="light-content" />
       <View style={styles.overlay} />
       <Navbar />
-
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: 60,
+          height: 60,
+          bottom: 40,
+          right: 20,
+          zIndex: 10,
+          backgroundColor: 'rgba(99, 78, 21, 0.7)',
+          borderRadius: 30,
+          padding: 10,
+        }}
+        onPress={() => navigation.navigate('Matches')}
+      >
+        <Icon name="chat" size={28} color="gold" />
+      </TouchableOpacity>
+      {/* ...resto del código... */}
       {cargando ? (
         <ActivityIndicator size="large" color="gold" style={{ flex: 1 }} />
       ) : index >= usuarios.length ? (
@@ -157,7 +190,6 @@ export default function Home() {
               onSwipeLeft={() => handleSwipe('dislike')}
               onSwipeRight={() => handleSwipe('like')}
               version={version}
-
             />
           </View>
         </View>

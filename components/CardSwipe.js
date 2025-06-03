@@ -71,6 +71,8 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
               />
             )}
           </View>
+        
+        
          
         </View>
       </Animated.View>

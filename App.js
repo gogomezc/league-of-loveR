@@ -5,6 +5,8 @@ import Login from './screens/Login';
 import Home from './screens/Home';
 import Registrarse from './screens/registrarse';
 import Perfil from './screens/Perfil';
+import Matches from './screens/Matches';
+import Chat from './screens/Chat';
 
 
 
@@ -38,6 +40,20 @@ export default function App() {
           component={Perfil}
           options={{
               headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Matches"
+          component={Matches}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Chat"
+          component={Chat}
+          options={{
+            headerShown: false,
           }}
         />
       </Stack.Navigator>
