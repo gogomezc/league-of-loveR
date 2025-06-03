@@ -159,9 +159,19 @@ export default function Home() {
       >
         <Icon name="chat" size={28} color="gold" />
       </TouchableOpacity>
+      
+      <View style={{ alignItems: 'center', marginTop: -80 }}>
+        <ImageBackground
+          source={require('../assets/titulologo.png')}
+          style={{ width: 200, height: 200 }}
+          imageStyle={{ borderRadius: 0 }}
+          resizeMode="contain"
+        />
+      </View>
+
       {/* ...resto del código... */}
       {cargando ? (
-        <ActivityIndicator size="large" color="gold" style={{ flex: 1 }} />
+        <ActivityIndicator size="large" color="gold" style={{ flex: 1}} />
       ) : index >= usuarios.length ? (
         <View style={styles.center}>
           <Text
@@ -177,6 +187,7 @@ export default function Home() {
               alignSelf: 'center',
               justifyContent: 'center',
               alignItems: 'center',
+              
             }}
           >
             No hay más usuarios disponibles... 🥲
@@ -211,9 +222,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center', // Centrado vertical
     alignItems: 'center',
-    paddingBottom: 60, // Deja espacio visual inferior
+    paddingBottom: -100, // Deja espacio visual inferior
   },
   swipeArea: {
+    marginTop: -200,
     alignItems: 'center',
     justifyContent: 'center',
   },

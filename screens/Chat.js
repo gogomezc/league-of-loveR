@@ -4,6 +4,9 @@ import { db, auth } from '../credenciales';
 import { doc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+
+
 
 export default function Chat({ route }) {
   const { chatId, otherUser } = route.params; // chatId y datos del otro usuario
@@ -51,11 +54,13 @@ export default function Chat({ route }) {
     <SafeAreaView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-        <Image source={{ uri: otherUser.photoURL }} style={styles.headerAvatar} />
-        <View>
-            <Text style={styles.headerName}>{otherUser.name}</Text>
-            {/* Puedes agregar aquí estado en línea, iconos, etc */}
-        </View>
+            <Image source={{ uri: otherUser.photoURL }} style={styles.headerAvatar} />
+            <View>
+                <Text style={styles.headerName}>{otherUser.name}</Text>
+                {/* Puedes agregar aquí estado en línea, iconos, etc */}
+
+            </View>
+
         </View>
         {/* Mensajes */}
         <FlatList

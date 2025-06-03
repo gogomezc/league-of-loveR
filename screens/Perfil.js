@@ -172,6 +172,7 @@ export default function Perfil({ navigation }) {
             onChangeText={(text) => setPerfil({ ...perfil, name: text })}
             placeholderTextColor="#ccc"
           />
+          <Text style={styles.subtitle}>Edad</Text>
           <TextInput
             style={styles.input}
             placeholder="Edad"
@@ -180,6 +181,7 @@ export default function Perfil({ navigation }) {
             keyboardType="numeric"
             placeholderTextColor="#ccc"
           />
+          <Text style={styles.subtitle}>Apodo</Text>
           <TextInput
             style={styles.input}
             placeholder="Nickname"
@@ -187,6 +189,7 @@ export default function Perfil({ navigation }) {
             onChangeText={(text) => setPerfil({ ...perfil, nickname: text })}
             placeholderTextColor="#ccc"
           />
+          <Text style={styles.subtitle}>Foto de perfil</Text>
           <TextInput
             style={styles.input}
             placeholder="Link de imagen de perfil"
@@ -194,7 +197,7 @@ export default function Perfil({ navigation }) {
             onChangeText={(text) => setPerfil({ ...perfil, photoURL: text })}
             placeholderTextColor="#ccc"
           />
-
+          <Text style={styles.subtitle}>Género</Text>
           <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
             
             <Picker
@@ -211,8 +214,9 @@ export default function Perfil({ navigation }) {
           </View>
 
 
-          <Text style={styles.title}>Mis preferencias</Text>
+          <Text style={styles.title2}>Mis preferencias</Text>
 
+          <Text style={styles.subtitle}>Rol favorito</Text>
           <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
             <Picker
               selectedValue={perfil.rolFavorito}
@@ -228,7 +232,8 @@ export default function Perfil({ navigation }) {
               <Picker.Item label="Soporte (Support)" value="soporte" />
             </Picker>
           </View>
-                    
+
+          <Text style={styles.subtitle}>Campeón favorito</Text>    
           <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
             <Picker
               selectedValue={perfil.champFavorito}
@@ -302,11 +307,18 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     marginTop: 80,
   },
+  title2: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 30,
+    marginTop: 30,
+  },
   subtitle: {
     fontSize: 15,
     color: '#fff',
     marginBottom: 10,
-    marginRight: 280,
+    alignSelf: 'flex-start',
   },
   input: {
     width: '100%',
