@@ -26,6 +26,18 @@ export default function Perfil({ navigation }) {
   const uid = auth.currentUser?.uid;
   const [champions, setChampions] = useState([]);
   const [version, setVersion] = useState(null);
+  const rolImages = {
+    top: require('../assets/top.png'),
+    jungla: require('../assets/jungla.png'),
+    mid: require('../assets/mid.png'),
+    adc: require('../assets/adc.png'),
+    soporte: require('../assets/soporte.png'),
+  };
+  const enBuscaImages = {
+    amigosjuego: require('../assets/busca-amigos-para-jugar.png'),
+    amigosvida: require('../assets/busca-amigos-para-vida.png'),
+    amor: require('../assets/busca-amor.png'),
+  };
 
   useEffect(() => {
 
@@ -121,7 +133,7 @@ export default function Perfil({ navigation }) {
   if (loading || !perfil) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: 'white' }}>Cargando perfil...</Text>
+        <Text style={{ color: 'white', fontSize: 28, fontStyle: 'italic' }}>Cargando perfil...</Text>
       </View>
     );
   }
@@ -217,10 +229,10 @@ export default function Perfil({ navigation }) {
           <Text style={styles.title2}>Mis preferencias</Text>
 
           <Text style={styles.subtitle}>Rol favorito</Text>
-          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+          <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
             <Picker
               selectedValue={perfil.rolFavorito}
-              style={{ color: 'white', width: '100%' }}
+              style={{ color: 'white', flex: 1 }}
               dropdownIconColor="white"
               onValueChange={(itemValue) => setPerfil({ ...perfil, rolFavorito: itemValue })}
             >
@@ -231,6 +243,12 @@ export default function Perfil({ navigation }) {
               <Picker.Item label="Tirador (ADC - Botlaner)" value="adc" />
               <Picker.Item label="Soporte (Support)" value="soporte" />
             </Picker>
+            {perfil.rolFavorito && rolImages[perfil.rolFavorito] && (
+              <Image
+                source={rolImages[perfil.rolFavorito]}
+                style={{ width: 40, height: 40 }}
+              />
+            )}
           </View>
 
           <Text style={styles.subtitle}>Campeón favorito</Text>    
@@ -254,11 +272,31 @@ export default function Perfil({ navigation }) {
                 style={{
                   width: 40,
                   height: 40,
-                  marginLeft: -500,
                 }}
               />
             )}
-          </View>          
+          </View>        
+
+          <Text style={styles.subtitle}>En busca de</Text>
+          <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
+            <Picker
+              selectedValue={perfil.enBusca}
+              style={{ color: 'white', flex: 1 }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setPerfil({ ...perfil, enBusca: itemValue })}
+            >
+              <Picker.Item label="¿Qué buscas en la app?..." value="" color="#ccc"/>
+              <Picker.Item label="Aliados para jugar" value="amigosjuego" />
+              <Picker.Item label="Amigos para la vida" value="amigosvida" />
+              <Picker.Item label="Una relación amorosa" value="amor" />
+            </Picker>
+            {perfil.enBusca && enBuscaImages[perfil.enBusca] && (
+              <Image
+                source={enBuscaImages[perfil.enBusca]}
+                style={{ width: 40, height: 40}}
+              />
+            )}
+          </View>  
 
 
 

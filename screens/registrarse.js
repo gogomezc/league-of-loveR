@@ -29,9 +29,21 @@ export default function Registrarse({ navigation }) {
   const [nickname, setNickname] = useState('');
   const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
   const [champFavorito, setChampFavorito] = useState(''); // Nombre del campeón favorito
-           
+  const [enBusca, setEnBusca] = useState('');
+  const enBuscaImages = {
+    amigosjuego: require('../assets/busca-amigos-para-jugar.png'),
+    amigosvida: require('../assets/busca-amigos-para-vida.png'),
+    amor: require('../assets/busca-amor.png'),
+  };
   const [champions, setChampions] = useState([]);  //  para listar todos los campeones  
   const [version, setVersion] = useState(null); 
+  const rolImages = {
+    top: require('../assets/top.png'),
+    jungla: require('../assets/jungla.png'),
+    mid: require('../assets/mid.png'),
+    adc: require('../assets/adc.png'),
+    soporte: require('../assets/soporte.png'),
+  };
 
     //  estados para perfil de invocador enlazado
 
@@ -65,7 +77,7 @@ export default function Registrarse({ navigation }) {
 
 
   const handleRegister = async () => {
-    if (!email || !password || !name || !age || !genero || !rolFavorito || !champFavorito) {
+    if (!email || !password || !name || !age || !genero || !rolFavorito || !champFavorito || !enBusca) {
       // Validación simple para asegurarse de que todos los campos estén completos
       Alert.alert('Campos incompletos!', 'Por favor completa todos los campos.');
       return;
@@ -83,6 +95,7 @@ export default function Registrarse({ navigation }) {
         email,
         rolFavorito, // jungla, soporte, top, adc o mid
         champFavorito,
+        enBusca,
         photoURL: "https://i.pinimg.com/736x/55/d7/dc/55d7dc610a289612cd2b49654bf0e1ea.jpg", // URL de la foto de perfil por defecto
         swipes: { like: [], dislike: [] },
         matches: {},
@@ -169,6 +182,9 @@ export default function Registrarse({ navigation }) {
             onChangeText={setNickname}
             placeholderTextColor="#ccc"
           />
+
+
+
           {/* Menú desplegable para género */}
           <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
             <Picker
@@ -180,28 +196,53 @@ export default function Registrarse({ navigation }) {
               <Picker.Item label="Selecciona tu género..." value="" color="#ccc" />
               <Picker.Item label="Masculino ♂️" value="masculino" />
               <Picker.Item label="Femenino ♀️" value="femenino" />
-              <Picker.Item label="No binario ⚧️" value="no binario" />
+              <Picker.Item label="No binario ⚧️" value="no_binario" />
             </Picker>
           </View>
+
+
+
+
 
           <Text style={styles.subtitle}>👾 Datos de jugador</Text>
 
           {/* Menú desplegable para rol favorito */}
-          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
-            <Picker
-              selectedValue={rolFavorito}
-              style={{ color: 'white', width: '100%' }}
-              dropdownIconColor="white"
-              onValueChange={(itemValue) => setRolFavorito(itemValue)}
+          <View 
+            style={[
+              styles.input, 
+              { 
+                padding: 0, 
+                flexDirection: 'row', 
+                alignItems: 'center' 
+                }
+              ]}
             >
-              <Picker.Item label="Selecciona tu rol favorito..." value="" color="#ccc" />
-              <Picker.Item label="Superior (Toplaner)" value="top" />
-              <Picker.Item label="Jungla (JG)" value="jungla" />
-              <Picker.Item label="Central (Midlaner)" value="mid" />
-              <Picker.Item label="Tirador (ADC - Botlaner)" value="adc" />
-              <Picker.Item label="Soporte (Support)" value="soporte" />
-            </Picker>
+              <Picker
+                selectedValue={rolFavorito}
+                style={{ color: 'white', flex: 1 }} // ocupa todo el ancho restante
+                dropdownIconColor="white"
+                onValueChange={(itemValue) => setRolFavorito(itemValue)}
+              >
+                <Picker.Item label="Selecciona tu rol favorito..." value="" color="#ccc" />
+                <Picker.Item label="Superior (Toplaner)" value="top" />
+                <Picker.Item label="Jungla (JG)" value="jungla" />
+                <Picker.Item label="Central (Midlaner)" value="mid" />
+                <Picker.Item label="Tirador (ADC - Botlaner)" value="adc" />
+                <Picker.Item label="Soporte (Support)" value="soporte" />
+              </Picker>
+                {/* Imagen del rol seleccionado */}
+                {rolFavorito !== '' && rolImages[rolFavorito] && (
+                  <Image
+                    source={rolImages[rolFavorito]}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      marginLeft: 8,
+                    }}
+                  />
+                )}
           </View>
+
 
           {/* Menú desplegable para campeón favorito */}
           <View
@@ -233,16 +274,41 @@ export default function Registrarse({ navigation }) {
                   uri: `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champFavorito}.png`
                 }}
                 style={{
-                  width: 40,       // tamaño del icono
+                  width: 40,
                   height: 40,
                   marginLeft: 8,   // espacio entre picker e imagen
                 }}
               />
             )}
-          </View>           
+          </View>          
 
 
+          <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
+            <Picker
+              selectedValue={enBusca}
+              style={{ color: 'white', flex: 1 }} // ocupa todo el ancho restante
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setEnBusca(itemValue)}
+            >
+              <Picker.Item label="¿Qué buscas en la app?..." value="" color="#ccc"/>
+              <Picker.Item label="Aliados para jugar" value="amigosjuego" />
+              <Picker.Item label="Amigos para la vida" value="amigosvida" />
+              <Picker.Item label="Una relación amorosa" value="amor" />
+            </Picker>
 
+            {/* Imagen de la búsqueda seleccionada */}
+            {enBusca !== '' && enBuscaImages[enBusca] && (
+              <Image
+                source={enBuscaImages[enBusca]}
+                style={{
+                  width: 40,
+                  height: 40,
+                  marginTop: 0,
+                  
+                }}
+              />
+            )}
+          </View> 
 
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Registrarse</Text>

@@ -69,17 +69,16 @@ const styles = StyleSheet.create({
     borderColor: '#c89b3c',
   },
   avatarPlaceholder: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 20,
     backgroundColor: '#555',
     borderWidth: 1,
     borderColor: '#c89b3c',
   },
   logoImage: {
-  width: 100,
-  height: 80,
-  resizeMode: 'contain',
-
-}
+    width: 100,
+    height: 90,
+    resizeMode: 'contain',
+  },
 });

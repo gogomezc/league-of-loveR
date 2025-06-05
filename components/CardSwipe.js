@@ -12,6 +12,42 @@ const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = width * 0.3;
 
 export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version }) {
+
+
+  const rolImages = {
+    top: require('../assets/top.png'),
+    jungla: require('../assets/jungla.png'),
+    mid: require('../assets/mid.png'),
+    adc: require('../assets/adc.png'),
+    soporte: require('../assets/soporte.png'),
+  };
+
+  const rolLabels = {
+    top: 'Superior (Toplaner)',
+    jungla: 'Jungla (JG)',
+    mid: 'Central (Midlaner)',
+    adc: 'Tirador (ADC - Botlaner)',
+    soporte: 'Soporte (Support)',
+  };
+
+  const enBuscaImages = {
+    amigosjuego: require('../assets/busca-amigos-para-jugar.png'),
+    amigosvida: require('../assets/busca-amigos-para-vida.png'),
+    amor: require('../assets/busca-amor.png'),
+  };
+
+  const enBuscaLabels = {
+    amigosjuego: 'Aliados para jugar',
+    amigosvida: 'Amigos para la vida',
+    amor: 'Una relación amorosa',
+  };
+
+  const generoIcons = {
+    masculino: '♂️',
+    femenino: '♀️',
+    no_binario: '⚧️',
+  };
+
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
 
@@ -51,8 +87,27 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
             {usuario.nickname ? ` (${usuario.nickname})` : ''}
           </Text>
           <Text style={styles.campo}>Edad: <Text style={styles.valor}>{usuario.age} años</Text></Text>
-          <Text style={styles.campo}>Género: <Text style={styles.valor}>{usuario.genero}</Text></Text>
-          <Text style={styles.campo}>Rol favorito: <Text style={styles.valor}>{usuario.rolFavorito}</Text></Text>
+          <Text style={styles.campo}>Género: <Text style={styles.valor}>{generoIcons[usuario.genero]}</Text></Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+            <Text style={styles.campo}>Rol favorito: </Text>
+            <Text style={styles.valor}>
+              {rolLabels[usuario.rolFavorito] || usuario.rolFavorito}
+            </Text>
+            {usuario.rolFavorito && rolImages[usuario.rolFavorito] && (
+              <Image
+                source={rolImages[usuario.rolFavorito]}
+                style={{ 
+                  width: 28, 
+                  height: 28, 
+                  borderRadius: 6,
+                  marginLeft: 8,
+                  borderWidth: 1,
+                  borderColor: '#c89b3c',
+                  backgroundColor: '#222', 
+                }}
+              />
+            )}
+          </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
             <Text style={styles.campo}>Campeón favorito: </Text>
             <Text style={styles.valor}>{usuario.champFavorito}</Text>
@@ -71,7 +126,26 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
               />
             )}
           </View>
-        
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+            <Text style={styles.campo}>En busca de: </Text>
+            <Text style={styles.valor}>
+              {enBuscaLabels[usuario.enBusca] || usuario.enBusca}
+            </Text>
+            {usuario.enBusca && enBuscaImages[usuario.enBusca] && (
+              <Image
+                source={enBuscaImages[usuario.enBusca]}
+                style={{ 
+                  width: 28, 
+                  height: 28, 
+                  borderRadius: 6,
+                  marginLeft: 8,
+                  borderWidth: 1,
+                  borderColor: '#c89b3c',
+                  backgroundColor: '#222',
+                }}
+              />
+            )}
+          </View>
         
          
         </View>
