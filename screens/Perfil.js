@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadImageToCloudinary } from '../credenciales';
 import {
   View,
   Text,
@@ -121,6 +123,47 @@ export default function Perfil({ navigation }) {
     );
   };
 
+  const cambiarFotoPerfil = async () => {
+    // Pedir permisos
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso requerido', 'Se necesita acceso a la galería para cambiar la foto de perfil.');
+      return;
+    }
+
+    // Abrir picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (result.canceled) {
+      Alert.alert('Cancelado', 'No seleccionaste ninguna imagen.');
+      return;
+    }
+
+    if (!result.assets || result.assets.length === 0) {
+      Alert.alert('Error', 'No se pudo obtener la imagen seleccionada.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const uri = result.assets[0].uri;
+      if (!uri) throw new Error('No se obtuvo la URI de la imagen');
+      const url = await uploadImageToCloudinary(uri);
+      if (!url) throw new Error('No se obtuvo URL de Cloudinary');
+      setPerfil({ ...perfil, photoURL: url });
+      await updateDoc(doc(db, 'users', uid), { photoURL: url });
+      Alert.alert('Éxito', 'Foto de perfil actualizada');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'No se pudo subir la foto');
+    }
+    setLoading(false);
+  };
+  
   const cerrarSesion = async () => {
     try {
       navigation.navigate('Login');
@@ -168,13 +211,14 @@ export default function Perfil({ navigation }) {
           </TouchableOpacity>          
           <Text style={styles.title}>Mis datos personales</Text>
 
-          {perfil.photoURL ? (
-            <Image source={{ uri: perfil.photoURL }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <Text style={{ color: 'white' }}>Sin foto</Text>
-            </View>
-          )}
+          <TouchableOpacity onPress={cambiarFotoPerfil}>
+            {perfil.photoURL 
+              ? <Image source={{ uri: perfil.photoURL }} style={styles.avatar}/>
+              : <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                  <Text style={{color:'#fff'}}>Sin foto</Text>
+                </View>
+            }
+          </TouchableOpacity>
 
           <Text style={styles.subtitle}>Nombre</Text>
           <TextInput
@@ -199,14 +243,6 @@ export default function Perfil({ navigation }) {
             placeholder="Nickname"
             value={perfil.nickname}
             onChangeText={(text) => setPerfil({ ...perfil, nickname: text })}
-            placeholderTextColor="#ccc"
-          />
-          <Text style={styles.subtitle}>Foto de perfil</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Link de imagen de perfil"
-            value={perfil.photoURL}
-            onChangeText={(text) => setPerfil({ ...perfil, photoURL: text })}
             placeholderTextColor="#ccc"
           />
           <Text style={styles.subtitle}>Género</Text>
