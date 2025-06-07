@@ -303,7 +303,7 @@ export default function Registrarse({ navigation }) {
                 style={{
                   width: 40,
                   height: 40,
-                  marginTop: 0,
+                  marginLeft: 8,
                   
                 }}
               />
