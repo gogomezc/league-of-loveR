@@ -156,7 +156,7 @@ export default function Perfil({ navigation }) {
       if (!url) throw new Error('No se obtuvo URL de Cloudinary');
       setPerfil({ ...perfil, photoURL: url });
       await updateDoc(doc(db, 'users', uid), { photoURL: url });
-      Alert.alert('Éxito', 'Foto de perfil actualizada');
+      Alert.alert('Foto actualizada ✅', 'Foto de perfil actualizada con éxito.');
     } catch (e) {
       console.error(e);
       Alert.alert('Error', 'No se pudo subir la foto');

@@ -31,7 +31,7 @@ export default function Navbar() {
   return (
     <View style={styles.navbar}>
     {/* Logo izquierda con imagen */}
-        <Image source={require('../assets/logossf.png')} style={styles.logoImage} />
+        <Image source={require('../assets/titulologo.png')} style={styles.logoImage} />
 
         {/* Avatar derecha */}
       <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
@@ -77,8 +77,9 @@ const styles = StyleSheet.create({
     borderColor: '#c89b3c',
   },
   logoImage: {
-    width: 100,
-    height: 90,
+    width: 150,
+    height: 95,
     resizeMode: 'contain',
+    marginLeft: 10,
   },
 });

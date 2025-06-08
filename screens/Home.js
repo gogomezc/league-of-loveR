@@ -102,7 +102,7 @@ export default function Home() {
         : [];
 
       if (otrosw.includes(uidActual)) {
-        Alert.alert('💘 ¡Es un match!');
+        Alert.alert('💘 ¡Es un match! 💘', '\nYa pueden chatear 👀');
 
         // 1. Crea el match y obtén el ID del documento
         const matchRef = await addDoc(collection(db, 'matches'), {
@@ -161,8 +161,6 @@ export default function Home() {
       </TouchableOpacity>
       
 
-
-      {/* ...resto del código... */}
       {cargando ? (
         <ActivityIndicator size="large" color="gold" style={{ flex: 1}} />
       ) : index >= usuarios.length ? (

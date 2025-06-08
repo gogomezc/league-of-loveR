@@ -103,11 +103,11 @@ export default function Registrarse({ navigation }) {
         
       });
 
-      Alert.alert('Registro exitoso');
+      Alert.alert('REGISTRO EXITOSO ✅', '\n  💘 ¡Bienvenidx a League of Love! 💘\n\n         Ya puedes iniciar sesión ➡️\n');
       navigation.navigate('Login');
     } catch (error) {
       console.error(error);
-      Alert.alert('Error al registrar', error.message);
+      Alert.alert('Error al registrar ✖️', error.message);
     }
   };
 
