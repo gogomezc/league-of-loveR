@@ -350,6 +350,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFD700', // dorado
     marginBottom: 20,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 4, height: 4 },
+    textShadowRadius: 15,
   },
   subtitle: {
     fontSize: 23,

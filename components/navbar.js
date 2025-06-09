@@ -64,14 +64,14 @@ const styles = StyleSheet.create({
   avatar: {
     width: 60,
     height: 60,
-    borderRadius: 20,
+    borderRadius: 15,
     borderWidth: 1,
     borderColor: '#c89b3c',
   },
   avatarPlaceholder: {
     width: 60,
     height: 60,
-    borderRadius: 20,
+    borderRadius: 15,
     backgroundColor: '#555',
     borderWidth: 1,
     borderColor: '#c89b3c',

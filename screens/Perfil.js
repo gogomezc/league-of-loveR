@@ -19,7 +19,7 @@ import { auth, db } from '../credenciales';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import axios from 'axios'; // Asegúrate de tener axios instalado
 import { Picker } from '@react-native-picker/picker'; // Asegúrate de tener @react-native-picker/picker instalado
-
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 
 export default function Perfil({ navigation }) {
@@ -92,7 +92,7 @@ export default function Perfil({ navigation }) {
     try {
       const docRef = doc(db, 'users', uid);
       await updateDoc(docRef, perfil);
-      Alert.alert('Éxito', 'Perfil actualizado correctamente.');
+      Alert.alert('Cambios guardados 💾', 'Perfil actualizado correctamente. ✅');
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'No se pudieron guardar los cambios.');
@@ -196,19 +196,11 @@ export default function Perfil({ navigation }) {
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <TouchableOpacity
-            style={{
-              position: 'absolute',
-              top: 40,
-              left: 20,
-              zIndex: 10,
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              borderRadius: 20,
-              padding: 8,
-            }}
+            style={styles.homeButtonFixed}
             onPress={() => navigation.navigate('Home')}
           >
-            <Text style={{ color: 'white', fontSize: 22 }}>🏠</Text>
-          </TouchableOpacity>          
+            <FontAwesome name="home" size={26} color="#fff" />
+          </TouchableOpacity>         
           <Text style={styles.title}>Mis datos personales</Text>
 
           <TouchableOpacity onPress={cambiarFotoPerfil}>
@@ -450,5 +442,20 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  homeButtonFixed: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    padding: 10,
+    borderRadius: 30,
+    zIndex: 1000, // Asegura que el botón esté por encima de otros elementos
+    elevation: 5, // Para Android
+    shadowColor: '#000', // Sombra para iOS
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+
   },
 });
