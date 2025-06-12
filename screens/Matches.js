@@ -132,7 +132,7 @@ export default function Matches({ navigation }) {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../assets/matches-ashetrynda.jpg')}
+        source={require('../assets/matches-ekkojinx.jpg')}
         style={styles.headerBg}
         resizeMode="cover"
       >
@@ -168,7 +168,6 @@ const styles = StyleSheet.create({
     width: '100%', 
     height: 150, 
     justifyContent: 'flex-end',
-    marginTop: 35, 
   },
   headerContent: {
     flexDirection: 'row',

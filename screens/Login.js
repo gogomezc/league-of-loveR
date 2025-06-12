@@ -39,7 +39,7 @@ export default function Login({ navigation }) {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Credenciales no ingresadas');
+      Alert.alert('Error', 'Credenciales erroneas');
     } finally {
       setLoading(false);
     }

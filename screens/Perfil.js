@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import { ActivityIndicator } from 'react-native';
 import { uploadImageToCloudinary } from '../credenciales';
 import {
   View,
@@ -40,6 +41,8 @@ export default function Perfil({ navigation }) {
     amigosvida: require('../assets/busca-amigos-para-vida.png'),
     amor: require('../assets/busca-amor.png'),
   };
+  const [loadingGuardar, setLoadingGuardar] = useState(false);
+
 
   useEffect(() => {
 
@@ -89,6 +92,7 @@ export default function Perfil({ navigation }) {
   };
 
   const guardarCambios = async () => {
+    setLoadingGuardar(true); // comienza la carga
     try {
       const docRef = doc(db, 'users', uid);
       await updateDoc(docRef, perfil);
@@ -96,8 +100,11 @@ export default function Perfil({ navigation }) {
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'No se pudieron guardar los cambios.');
+    } finally {
+      setLoadingGuardar(false); // termina la carga
     }
   };
+
 
   const eliminarPerfil = async () => {
     Alert.alert(
@@ -183,7 +190,7 @@ export default function Perfil({ navigation }) {
 
   return (
     <ImageBackground
-      source={require('../assets/editarperfil.png')}
+      source={require('../assets/fondoperfil2.jpg')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -201,7 +208,7 @@ export default function Perfil({ navigation }) {
           >
             <FontAwesome name="home" size={26} color="#fff" />
           </TouchableOpacity>         
-          <Text style={styles.title}>Mis datos personales</Text>
+          <Text style={styles.title}>DATOS PERSONALES</Text>
 
           <TouchableOpacity onPress={cambiarFotoPerfil}>
             {perfil.photoURL 
@@ -254,7 +261,7 @@ export default function Perfil({ navigation }) {
           </View>
 
 
-          <Text style={styles.title2}>Mis preferencias</Text>
+          <Text style={styles.title2}>PREFERENCIAS</Text>
 
           <Text style={styles.subtitle}>Rol favorito</Text>
           <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
@@ -333,20 +340,33 @@ export default function Perfil({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.deleteButton} onPress={eliminarPerfil}>
-            <Text style={styles.deleteButtonText}>Eliminar Perfil 🚯</Text>
+            <Text style={styles.buttonText}>Eliminar Perfil 🚯</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button2} onPress={cerrarSesion}>
-            <Text style={styles.buttonText2}>Cerrar Sesión</Text>
+            <Text style={styles.buttonText}>Cerrar Sesión</Text>
           </TouchableOpacity>
 
         </ScrollView>
       </KeyboardAvoidingView>
+      {loadingGuardar && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#FFD700" />
+        </View>
+      )}
+
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingOverlay: {
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: 'rgba(0,0,0,0.6)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10,
+  },
   background: {
     flex: 1,
   },
@@ -369,14 +389,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FFD700', // dorado
     marginBottom: 30,
     marginTop: 80,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 3, height: 3 },
+    textShadowRadius: 15,
   },
   title2: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FFD700', // dorado
     marginBottom: 30,
     marginTop: 30,
   },
@@ -410,39 +433,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   button: {
     backgroundColor: 'gold',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
     marginTop: 30,
+    width: 200,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+
   button2: {
     backgroundColor: 'rgb(175, 33, 95)', // dorado
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
     marginTop: 30,
+    width: 200,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonText2: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+
   deleteButton: {
     marginTop: 30,
     backgroundColor: 'red',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+    width: 200,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  deleteButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+
   homeButtonFixed: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     position: 'absolute',

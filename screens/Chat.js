@@ -40,9 +40,7 @@ export default function Chat({ route }) {
     const isMe = item.senderId === auth.currentUser.uid;
     return (
       <View style={[styles.messageContainer, isMe ? styles.myMessage : styles.otherMessage]}>
-        {!isMe && (
-          <Image source={{ uri: otherUser.photoURL }} style={styles.avatar} />
-        )}
+
         <View style={[styles.bubble, isMe ? styles.myBubble : styles.otherBubble]}>
           <Text style={styles.text}>{item.text}</Text>
         </View>
@@ -58,10 +56,9 @@ export default function Chat({ route }) {
             <View>
                 <Text style={styles.headerName}>{otherUser.name}</Text>
                 {/* Puedes agregar aquí estado en línea, iconos, etc */}
-
             </View>
-
         </View>
+        
         {/* Mensajes */}
         <FlatList
         ref={flatListRef}
@@ -71,6 +68,7 @@ export default function Chat({ route }) {
         contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
+
         {/* Input */}
         <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -93,18 +91,63 @@ export default function Chat({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'linear-gradient(90deg, #1a1a1a, #bfa14a)' },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#1a1a1a' },
-  headerAvatar: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
-  headerName: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-  messageContainer: { flexDirection: 'row', alignItems: 'flex-end', marginVertical: 4 },
-  myMessage: { justifyContent: 'flex-end', alignSelf: 'flex-end' },
-  otherMessage: { alignSelf: 'flex-start' },
-  avatar: { width: 32, height: 32, borderRadius: 16, marginRight: 8 },
-  bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, marginBottom: 2 },
-  myBubble: { backgroundColor: '#ffe082', alignSelf: 'flex-end' },
-  otherBubble: { backgroundColor: '#fff3cd', alignSelf: 'flex-start' },
-  text: { color: '#222', fontSize: 16 },
+  container: { 
+    flex: 1, 
+    backgroundColor: 'linear-gradient(90deg, #1a1a1a, #bfa14a)' 
+  },
+  header: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: 16, 
+    backgroundColor: '#1a1a1a' 
+  },
+  headerAvatar: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 24, 
+    marginRight: 12 
+  },
+  headerName: { 
+    color: '#fff', 
+    fontWeight: 'bold', 
+    fontSize: 18 
+  },
+  messageContainer: { 
+    flexDirection: 'row',
+    alignItems: 'flex-end', 
+    marginVertical: 4 
+  },
+  myMessage: { 
+    justifyContent: 'flex-end', 
+    alignSelf: 'flex-end' 
+  },
+  otherMessage: { 
+    alignSelf: 'flex-start' 
+  },
+  avatar: { 
+    width: 32, 
+    height: 32, 
+    borderRadius: 16, 
+    marginRight: 8 
+  },
+  bubble: { 
+    maxWidth: '75%', 
+    padding: 12, 
+    borderRadius: 16, 
+    marginBottom: 2 
+  },
+  myBubble: { 
+    backgroundColor: '#ffe082', 
+    alignSelf: 'flex-end' 
+  },
+  otherBubble: { 
+    backgroundColor: '#fff3cd', 
+    alignSelf: 'flex-start' 
+  },
+  text: { 
+    color: '#222', 
+    fontSize: 16 
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
