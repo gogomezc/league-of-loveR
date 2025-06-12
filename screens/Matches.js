@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
     width: '100%', 
     height: 150, 
     justifyContent: 'flex-end',
+    marginTop: 0,
   },
   headerContent: {
     flexDirection: 'row',

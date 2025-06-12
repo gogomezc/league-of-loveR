@@ -19,6 +19,7 @@ import {
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../credenciales';
+import { ActivityIndicator } from 'react-native';
 
 export default function Registrarse({ navigation }) {
   const [email, setEmail] = useState('');
@@ -30,6 +31,7 @@ export default function Registrarse({ navigation }) {
   const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
   const [champFavorito, setChampFavorito] = useState(''); // Nombre del campeón favorito
   const [enBusca, setEnBusca] = useState('');
+  const [loading, setLoading] = useState(false);
   const enBuscaImages = {
     amigosjuego: require('../assets/busca-amigos-para-jugar.png'),
     amigosvida: require('../assets/busca-amigos-para-vida.png'),
@@ -78,10 +80,12 @@ export default function Registrarse({ navigation }) {
 
   const handleRegister = async () => {
     if (!email || !password || !name || !age || !genero || !rolFavorito || !champFavorito || !enBusca) {
-      // Validación simple para asegurarse de que todos los campos estén completos
+      // Validación simple para asegurarse de que todos los campos obligatorios estén completos
       Alert.alert('Campos incompletos!', 'Por favor completa todos los campos.');
       return;
     }
+
+    setLoading(true);
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -108,7 +112,10 @@ export default function Registrarse({ navigation }) {
     } catch (error) {
       console.error(error);
       Alert.alert('Error al registrar ✖️', error.message);
+    } finally {
+      setLoading(false);
     }
+
   };
 
   return (
@@ -321,12 +328,24 @@ export default function Registrarse({ navigation }) {
             <Text style={{ color: 'white' }}>¿Ya tienes cuenta? Inicia sesión aquí</Text>
           </TouchableOpacity>
         </ScrollView>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#FFD700" />
+        </View>
+      )}
       </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
   background: {
     flex: 1,
   },

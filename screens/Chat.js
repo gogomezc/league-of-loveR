@@ -55,7 +55,7 @@ export default function Chat({ route }) {
             <Image source={{ uri: otherUser.photoURL }} style={styles.headerAvatar} />
             <View>
                 <Text style={styles.headerName}>{otherUser.name}</Text>
-                {/* Puedes agregar aquí estado en línea, iconos, etc */}
+                {/* agregar aquí mas cosas como: estado en línea, iconos, etc */}
             </View>
         </View>
         
