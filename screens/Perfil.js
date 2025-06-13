@@ -203,7 +203,7 @@ export default function Perfil({ navigation }) {
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <TouchableOpacity
-            style={styles.homeButtonFixed}
+            style={styles.homeButton}
             onPress={() => navigation.navigate('Home')}
           >
             <FontAwesome name="home" size={26} color="#fff" />
@@ -335,7 +335,7 @@ export default function Perfil({ navigation }) {
 
 
 
-          <TouchableOpacity style={styles.button} onPress={guardarCambios}>
+          <TouchableOpacity style={styles.buttonCambios} onPress={guardarCambios}>
             <Text style={styles.buttonText}>Guardar Cambios 💾</Text>
           </TouchableOpacity>
 
@@ -343,7 +343,7 @@ export default function Perfil({ navigation }) {
             <Text style={styles.buttonText}>Eliminar Perfil 🚯</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button2} onPress={cerrarSesion}>
+          <TouchableOpacity style={styles.buttonCerrarSesion} onPress={cerrarSesion}>
             <Text style={styles.buttonText}>Cerrar Sesión</Text>
           </TouchableOpacity>
 
@@ -438,8 +438,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  button: {
-    backgroundColor: 'gold',
+  buttonCambios: {
+    backgroundColor: 'rgba(253, 193, 15, 0.77)',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
@@ -448,13 +448,17 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
+    borderColor: '#fff',
+    borderWidth: 1,
   },
 
-  button2: {
-    backgroundColor: 'rgb(175, 33, 95)', // dorado
+  buttonCerrarSesion: {
+    backgroundColor: 'rgb(153, 23, 79)', // dorado
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+    borderColor: '#fff',
+    borderWidth: 1,
     marginTop: 30,
     width: 200,
     height: 50,
@@ -464,17 +468,19 @@ const styles = StyleSheet.create({
 
   deleteButton: {
     marginTop: 30,
-    backgroundColor: 'red',
+    backgroundColor: 'rgba(255, 0, 0, 0.62)', // rojo
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+    borderColor: '#fff',
+    borderWidth: 1,
     width: 200,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  homeButtonFixed: {
+  homeButton: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     position: 'absolute',
     top: 40,
