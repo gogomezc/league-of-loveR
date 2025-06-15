@@ -49,6 +49,7 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
   };
 
   const translateX = useSharedValue(0);
+
   const rotate = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
@@ -73,6 +74,7 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
       { rotate: `${rotate.value}deg` },
     ],
   }));
+
   const champIconUrl = usuario.champFavorito && version
     ? `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${usuario.champFavorito}.png`
     : null;
@@ -84,7 +86,7 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
         <View style={styles.info}>
           <Text style={styles.nombre}>
             {usuario.name}
-            {usuario.nickname ? ` (${usuario.nickname})` : ''}
+            {usuario.nickname ? ` (${usuario.nickname})` : ''}, {usuario.age}
           </Text>
           <Text style={styles.campo}>Edad: <Text style={styles.valor}>{usuario.age} años</Text></Text>
           <Text style={styles.campo}>Género: <Text style={styles.valor}>{generoIcons[usuario.genero]}</Text></Text>
@@ -156,7 +158,7 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
 
 const styles = StyleSheet.create({
   card: {
-    width: width * 0.85,
+    width: width * 0.95,
     // Elimina la altura fija para que el card crezca según el contenido
     // height: width * 1.05,
     backgroundColor: '#0a0a0a',
@@ -170,6 +172,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
+    borderBlockColor: '#c89b3c',
+    borderWidth: 3,
+
+
   },
   foto: {
     width: '100%',
@@ -181,7 +187,7 @@ const styles = StyleSheet.create({
   },
   info: {
     marginTop: 15,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   nombre: {
     fontSize: 24,

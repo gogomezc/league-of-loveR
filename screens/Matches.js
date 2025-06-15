@@ -103,7 +103,7 @@ export default function Matches({ navigation }) {
         <Image source={{ uri: item.photoURL }} style={styles.avatar} />
         <View style={{ flex: 1 }}>
           <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.subtitle}>{item.nickname || item.email}</Text>
+          <Text style={styles.subtitle}>{item.nickname || ""}</Text>
           <View style={styles.iconRow}>
             {/* Género */}
             {item.genero && (

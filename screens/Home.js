@@ -18,15 +18,16 @@ import {
   addDoc,
   setDoc,
   serverTimestamp,
+  Dimensions,
 } from 'firebase/firestore';
 import CardSwipe from '../components/CardSwipe';
 import Navbar from '../components/navbar';
 import axios from 'axios';
 import { TouchableOpacity, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // O el ícono que prefieras
 import Modal from 'react-native-modal';
+
 
 
 export default function Home() {
@@ -37,11 +38,10 @@ export default function Home() {
   const [version, setVersion] = useState('');
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
-  const [filtroRol, setFiltroRol] = useState('');
+  const [filtroRol, setFiltroRol] = useState('');     
   const [filtroGenero, setFiltroGenero] = useState('');
   const [filtroBusca, setFiltroBusca] = useState('');
-
-
+  
   useEffect(() => {
     const fetchVersion = async () => {
       try {
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     paddingBottom: -100, // Deja espacio visual inferior
   },
   swipeArea: {
-    marginTop: -150,
+    marginTop:  -150,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { ActivityIndicator } from 'react-native';
 import { uploadImageToCloudinary } from '../credenciales';
+import {RIOT_API_KEY} from '@env'; // Asegúrate de tener configurado dotenv para importar variables de entorno
 import {
   View,
   Text,
@@ -29,6 +30,15 @@ export default function Perfil({ navigation }) {
   const uid = auth.currentUser?.uid;
   const [champions, setChampions] = useState([]);
   const [version, setVersion] = useState(null);
+  const [riotGameName, setRiotGameName] = useState('');
+  const [riotTagLine, setRiotTagLine] = useState('');
+  const [riotRegion, setRiotRegion] = useState('americas');
+  const [masteryChampion, setMasteryChampion] = useState(null);
+  const [rankInfo, setRankInfo] = useState(null);
+  const [championsLoading, setChampionsLoading] = useState(true);
+
+  
+
   const rolImages = {
     top: require('../assets/top.png'),
     jungla: require('../assets/jungla.png'),
@@ -48,19 +58,26 @@ export default function Perfil({ navigation }) {
 
     const fetchChampions = async () => {
       try {
+        setChampionsLoading(true);
         const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
         const latestVersion = versionsRes.data[0];
         setVersion(latestVersion);
         const champsRes = await axios.get(
           `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
         );
-        const champsArray = Object.values(champsRes.data.data).map(item => ({
+        const champsArray = Object.values(champsRes.data.data).map(item => (
+          {
           key: item.id,
           name: item.name,
-        }));
+          title: item.title,
+          image: `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/champion/${item.id}.png`
+          }
+      ));
         setChampions(champsArray);
       } catch (error) {
         console.error('Error cargando lista de campeones:', error);
+      } finally {
+        setChampionsLoading(false);
       }
     };
     fetchChampions();
@@ -180,6 +197,118 @@ export default function Perfil({ navigation }) {
     }
   };
 
+  const obtenerDatosJugador = async () => {
+    try {
+      if (!riotGameName || !riotTagLine || !riotRegion) {
+        Alert.alert("Faltan datos", "Debes ingresar nombre, tagline y región");
+        return;
+      }
+      const riotToken = RIOT_API_KEY; // esta variable esté definida en el env y se importa
+      if (!riotToken) {
+        Alert.alert("Error", "No se encontró el token de Riot Games");
+        return;
+      }
+
+
+
+      // aqui con el nombre de invocador y tagline obtenemos el PUUID que es el identificador único del jugador que deja traer todos los demas datos
+      const accountRes = await axios.get(
+        `https://${riotRegion}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${riotGameName}/${riotTagLine}?api_key=${riotToken}`
+      );
+      const puuid = accountRes.data.puuid;
+      console.log("PUUID:", puuid);
+
+      const platformRouting = {
+        americas: 'la2',
+        europe: 'euw1',
+        asia: 'kr'
+      };
+
+      // gracias al PUUID podemos obtener el ID del invocador, nivel de la cuenta e icono de invocador
+      const summonerRes = await axios.get(
+        `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}?api_key=${riotToken}`
+      );
+      const summonerId = summonerRes.data.id;
+      const summonerLevel = summonerRes.data.summonerLevel;
+      const summonerIcon = summonerRes.data.profileIconId;
+      console.log("Summoner ID:", summonerId);
+      console.log("Nivel de invocador:", summonerLevel);
+      console.log("ID Icono de invocador:", summonerIcon);
+
+      // gracias al summonerID podemos obtener la división (liga)
+      const rankedRes = await axios.get(
+        `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${riotToken}`
+      );
+    
+      const queue = rankedRes.data[0].queueType;
+      const division = rankedRes.data[0].tier;
+      const rank = rankedRes.data[0].rank;
+      const leaguePoints = rankedRes.data[0].leaguePoints;
+      console.log("Tipo de cola:", queue, "División:", division, "Rank:", rank, "LP:", leaguePoints);
+
+      setRankInfo({
+        queueType: queue,
+        tier: division,
+        rank: rank,
+        leaguePoints: leaguePoints
+      });
+
+      
+      // Champion con más maestría
+      const masteryRes = await axios.get(
+        `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}?api_key=${riotToken}`
+      );
+      const championId = masteryRes.data[0].championId;
+      const championLevel = masteryRes.data[0].championLevel;
+      const championPoints = masteryRes.data[0].championPoints;
+      console.log("Campeón más jugado:", championId, "Nivel:", championLevel, "Puntos:", championPoints);
+
+      // AQUÍ VA LA LÓGICA PARA RECORRER LOS CAMPEONES QUE YA TENGO GUARDADOS EN const [champions, setChampions] = useState([]) que las trae de la api de ddragon; CON EL ID DE championId
+      // Buscar en la lista de campeones el que coincide con el ID
+      const champData = champions.find(champ => champ.key == championId);
+      if (!champData) {
+        console.log(`No se encontró el campeón con ID: ${championId}`);
+      } else {
+        console.log("Campeón más jugado:", champData.name, "Leyenda:", champData.title, "Imagen:", champData.image);
+      }
+     
+      if (champData) {
+        setMasteryChampion({
+          championId,
+          championLevel,
+          championPoints,
+          name: champData.name,
+          title: champData.title,
+          image: champData.image
+        });
+      }
+
+
+
+      /*
+      //setMasteryChampion(topChampion);
+
+      // Última partida (historial)
+      const matchIdsRes = await axios.get(
+        `https://${riotRegion}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=1&api_key=${riotToken}`
+      );
+
+      const matchId = matchIdsRes.data[0];
+      const matchDetail = await axios.get(
+        `https://${riotRegion}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${riotToken}`
+      );
+
+      const timestamp = matchDetail.data.info.gameEndTimestamp;
+      //setLastMatchDate(new Date(timestamp).toLocaleString());
+      */
+    } catch (err) {
+      console.error(err);
+      console.log("Error al obtener datos de Riot:", err.response?.data || err.message);
+      Alert.alert("No se pudo obtener información del jugador", "Verifica que el nombre de invocador, tagline y región sean correctos, si el error persiste, intenta más tarde.");
+    }
+  };
+
+
   if (loading || !perfil) {
     return (
       <View style={styles.center}>
@@ -219,7 +348,7 @@ export default function Perfil({ navigation }) {
             }
           </TouchableOpacity>
 
-          <Text style={styles.subtitle}>Nombre</Text>
+          <Text style={styles.subtitle}>Nombre:</Text>
           <TextInput
             style={styles.input}
             placeholder="Nombre"
@@ -239,7 +368,7 @@ export default function Perfil({ navigation }) {
           <Text style={styles.subtitle}>Apodo</Text>
           <TextInput
             style={styles.input}
-            placeholder="Nickname"
+            placeholder="¿Cómo te gusta que te digan?"
             value={perfil.nickname}
             onChangeText={(text) => setPerfil({ ...perfil, nickname: text })}
             placeholderTextColor="#ccc"
@@ -256,7 +385,7 @@ export default function Perfil({ navigation }) {
               <Picker.Item label="Selecciona tu género..." value="" color="#ccc" />
               <Picker.Item label="Masculino ♂️" value="masculino" />
               <Picker.Item label="Femenino ♀️" value="femenino" />
-              <Picker.Item label="No binario ⚧️" value="no binario" />
+              <Picker.Item label="No binario ⚧️" value="no_binario" />
             </Picker>
           </View>
 
@@ -332,6 +461,65 @@ export default function Perfil({ navigation }) {
               />
             )}
           </View>  
+
+
+
+          <Text style={styles.title2}>PERFIL DE LOL</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre de invocador"
+            value={riotGameName}
+            onChangeText={setRiotGameName}
+            placeholderTextColor="#ccc"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Tagline (ej: LAS, 1234)"
+            value={riotTagLine}
+            onChangeText={setRiotTagLine}
+            placeholderTextColor="#ccc"
+          />
+
+          <View style={[styles.input, { padding: 0 }]}>
+            <Picker
+              selectedValue={riotRegion}
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white" 
+              onValueChange={setRiotRegion}
+            >
+              <Picker.Item label="Región..." value="" color="#ccc" />
+              <Picker.Item label="Américas" value="americas" />
+              <Picker.Item label="Europa" value="europe" />
+              <Picker.Item label="Asia" value="asia" />
+            </Picker>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.buttonCuenta, championsLoading && { backgroundColor: '#999' }]}
+            onPress={obtenerDatosJugador}
+            disabled={championsLoading}
+          >
+            {championsLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Vincular cuenta LoL 🔗</Text>
+            )}
+          </TouchableOpacity>
+
+          {rankInfo && (
+            <Text style={{ color: 'white', marginTop: 5 }}>
+              🏅 División: {rankInfo.queueType}: -- {rankInfo.tier} {rankInfo.rank} ({rankInfo.leaguePoints} LP)
+            </Text>
+          )}
+
+          {masteryChampion && (
+            <Text style={{ color: 'white', marginTop: 10 }}>
+              🏆 Campeón más jugado (maestría): ID {masteryChampion.championId} con {masteryChampion.championPoints} puntos
+            </Text>
+          )}
+
 
 
 
@@ -420,6 +608,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: 'white',
   },
+  inputInmovible: {
+    width: '100%',
+    height: 50,
+    marginBottom: 15,
+    color: 'white',
+  },
   avatar: {
     width: 150,
     height: 150,
@@ -469,6 +663,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     width: 200,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  buttonCuenta: {
+    backgroundColor: 'rgba(255, 215, 0, 0.8)', // dorado con opacidad
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginTop: 30,
+    width: 300,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
