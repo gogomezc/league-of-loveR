@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';       
+import { RIOT_API_KEY } from '@env'; 
 import {
   Text,
   StyleSheet,
@@ -16,19 +19,73 @@ import {
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../credenciales';
+import { ActivityIndicator } from 'react-native';
 
 export default function Registrarse({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
+  const [genero, setGenero] = useState(''); // masculino, femenino o no binario
   const [nickname, setNickname] = useState('');
+  const [rolFavorito, setRolFavorito] = useState(''); // jungla, soporte, top, adc o mid
+  const [champFavorito, setChampFavorito] = useState(''); // Nombre del campeón favorito
+  const [enBusca, setEnBusca] = useState('');
+  const [loading, setLoading] = useState(false);
+  const enBuscaImages = {
+    amigosjuego: require('../assets/busca-amigos-para-jugar.png'),
+    amigosvida: require('../assets/busca-amigos-para-vida.png'),
+    amor: require('../assets/busca-amor.png'),
+  };
+  const [champions, setChampions] = useState([]);  //  para listar todos los campeones  
+  const [version, setVersion] = useState(null); 
+  const rolImages = {
+    top: require('../assets/top.png'),
+    jungla: require('../assets/jungla.png'),
+    mid: require('../assets/mid.png'),
+    adc: require('../assets/adc.png'),
+    soporte: require('../assets/soporte.png'),
+  };
+
+    //  estados para perfil de invocador enlazado
+
+  //  al montar el componente, traemos la lista de campeones
+  useEffect(() => {
+    const fetchChampions = async () => {
+      try {
+        // Obtenemos la lista de versiones para escoger la última
+        const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+        const latestVersion = versionsRes.data[0];
+        setVersion(latestVersion);  // <-- guardamos la versión más reciente para usarla después
+        // Con la versión más reciente, pedimos todos los campeones
+        const champsRes = await axios.get(
+          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+        );
+        // Transformamos el objeto en un array de { key, name }
+        const champsArray = Object.values(champsRes.data.data).map(item => ({
+          key: item.id,      // ej. "Aatrox"
+          name: item.name,   // ej. "Aatrox" se ven igual desde que lo trae la API y cmo se guarda en texto 
+        }));
+        setChampions(champsArray);  // <-- guardamos en el estado
+      } catch (error) {
+        console.error('Error cargando lista de campeones:', error);
+      }
+    };
+    fetchChampions();
+  }, []); // <--  dependencia vacía para que corra solo 1 vez
+
+
+
+
 
   const handleRegister = async () => {
-    if (!email || !password || !name  ) {
-      Alert.alert('Error', 'Por favor completa todos los campos.');
+    if (!email || !password || !name || !age || !genero || !rolFavorito || !champFavorito || !enBusca) {
+      // Validación simple para asegurarse de que todos los campos obligatorios estén completos
+      Alert.alert('Campos incompletos!', 'Por favor completa todos los campos.');
       return;
     }
+
+    setLoading(true);
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -37,19 +94,28 @@ export default function Registrarse({ navigation }) {
       await setDoc(doc(db, 'users', uid), {
         name,
         age: parseInt(age),
+        genero, // masculino, femenino o no binario
         nickname,
         email,
-        photoURL: '',
+        rolFavorito, // jungla, soporte, top, adc o mid
+        champFavorito,
+        enBusca,
+        photoURL: "https://i.pinimg.com/736x/55/d7/dc/55d7dc610a289612cd2b49654bf0e1ea.jpg", // URL de la foto de perfil por defecto
         swipes: { like: [], dislike: [] },
         matches: {},
+        version,
+        
       });
 
-      Alert.alert('Registro exitoso');
+      Alert.alert('REGISTRO EXITOSO ✅', '\n  💘 ¡Bienvenidx a League of Love! 💘\n\n         Ya puedes iniciar sesión ➡️\n');
       navigation.navigate('Login');
     } catch (error) {
       console.error(error);
-      Alert.alert('Error al registrar', error.message);
+      Alert.alert('Error al registrar ✖️', error.message);
+    } finally {
+      setLoading(false);
     }
+
   };
 
   return (
@@ -66,9 +132,25 @@ export default function Registrarse({ navigation }) {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../assets/logosf.png')} style={styles.logo} />
-          <Text style={styles.title}>Registrarse</Text>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: 40,
+              left: 20,
+              zIndex: 10,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              borderRadius: 20,
+              padding: 8,
+            }}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={{ color: 'white', fontSize: 24 }}>{'\u2190'}</Text>
+          </TouchableOpacity>
 
+          <Image source={require('../assets/logossf.png')} style={styles.logo} />
+          <Text style={styles.title}>Registrate aquí</Text>
+
+          <Text style={styles.subtitle}>👤 Datos personales</Text>
           <TextInput
             placeholder="Nombre"
             style={styles.input}
@@ -76,7 +158,6 @@ export default function Registrarse({ navigation }) {
             onChangeText={setName}
             placeholderTextColor="#ccc"
           />
-    
           <TextInput
             placeholder="Correo"
             style={styles.input}
@@ -93,6 +174,148 @@ export default function Registrarse({ navigation }) {
             secureTextEntry
             placeholderTextColor="#ccc"
           />
+          <TextInput
+            placeholder="Edad"
+            style={styles.input}
+            value={age}
+            onChangeText={setAge}
+            keyboardType="numeric"
+            placeholderTextColor="#ccc"
+          />
+          <TextInput
+            placeholder="Apodo (opcional)"
+            style={styles.input}
+            value={nickname}
+            onChangeText={setNickname}
+            placeholderTextColor="#ccc"
+          />
+
+
+
+          {/* Menú desplegable para género */}
+          <View style={[styles.input, { padding: 0, justifyContent: 'center' }]}>
+            <Picker
+              selectedValue={genero}
+              style={{ color: 'white', width: '100%' }}
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setGenero(itemValue)}
+            >
+              <Picker.Item label="Selecciona tu género..." value="" color="#ccc" />
+              <Picker.Item label="Masculino ♂️" value="masculino" />
+              <Picker.Item label="Femenino ♀️" value="femenino" />
+              <Picker.Item label="No binario ⚧️" value="no_binario" />
+            </Picker>
+          </View>
+
+
+
+
+
+          <Text style={styles.subtitle}>👾 Datos de jugador</Text>
+
+          {/* Menú desplegable para rol favorito */}
+          <View 
+            style={[
+              styles.input, 
+              { 
+                padding: 0, 
+                flexDirection: 'row', 
+                alignItems: 'center' 
+                }
+              ]}
+            >
+              <Picker
+                selectedValue={rolFavorito}
+                style={{ color: 'white', flex: 1 }} // ocupa todo el ancho restante
+                dropdownIconColor="white"
+                onValueChange={(itemValue) => setRolFavorito(itemValue)}
+              >
+                <Picker.Item label="Selecciona tu rol favorito..." value="" color="#ccc" />
+                <Picker.Item label="Superior (Toplaner)" value="top" />
+                <Picker.Item label="Jungla (JG)" value="jungla" />
+                <Picker.Item label="Central (Midlaner)" value="mid" />
+                <Picker.Item label="Tirador (ADC - Botlaner)" value="adc" />
+                <Picker.Item label="Soporte (Support)" value="soporte" />
+              </Picker>
+                {/* Imagen del rol seleccionado */}
+                {rolFavorito !== '' && rolImages[rolFavorito] && (
+                  <Image
+                    source={rolImages[rolFavorito]}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      marginLeft: 8,
+                    }}
+                  />
+                )}
+          </View>
+
+
+          {/* Menú desplegable para campeón favorito */}
+          <View
+            style={[
+              styles.input,
+              {
+                padding: 0,
+                flexDirection: 'row',       
+                alignItems: 'center',      
+              }
+            ]}
+          >
+            <Picker
+              selectedValue={champFavorito}
+              style={{ color: 'white', flex: 1 }}   //  ocupa todo el ancho restante
+              dropdownIconColor="white"
+              onValueChange={setChampFavorito}
+            >
+              <Picker.Item label="Selecciona tu campeón favorito..." value="" color="#ccc" />
+              {champions.map(champ => (
+                <Picker.Item key={champ.key} label={champ.name} value={champ.key} />
+              ))}
+            </Picker>
+
+            {/* Imagen del campeón */}
+            {champFavorito && version && (      //solo si hay selección y versión
+              <Image
+                source={{
+                  uri: `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champFavorito}.png`
+                }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  marginLeft: 8,   // espacio entre picker e imagen
+                }}
+              />
+            )}
+          </View>          
+
+
+          <View style={[styles.input, { padding: 0, flexDirection: 'row', alignItems: 'center' }]}>
+            <Picker
+              selectedValue={enBusca}
+              style={{ color: 'white', flex: 1 }} // ocupa todo el ancho restante
+              dropdownIconColor="white"
+              onValueChange={(itemValue) => setEnBusca(itemValue)}
+            >
+              <Picker.Item label="¿Qué buscas en la app?..." value="" color="#ccc"/>
+              <Picker.Item label="Aliados para jugar" value="amigosjuego" />
+              <Picker.Item label="Amigos para la vida" value="amigosvida" />
+              <Picker.Item label="Una relación amorosa" value="amor" />
+            </Picker>
+
+            {/* Imagen de la búsqueda seleccionada */}
+            {enBusca !== '' && enBuscaImages[enBusca] && (
+              <Image
+                source={enBuscaImages[enBusca]}
+                style={{
+                  width: 40,
+                  height: 40,
+                  marginLeft: 8,
+                  
+                }}
+              />
+            )}
+          </View> 
 
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Registrarse</Text>
@@ -105,12 +328,24 @@ export default function Registrarse({ navigation }) {
             <Text style={{ color: 'white' }}>¿Ya tienes cuenta? Inicia sesión aquí</Text>
           </TouchableOpacity>
         </ScrollView>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#FFD700" />
+        </View>
+      )}
       </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
   background: {
     flex: 1,
   },
@@ -127,14 +362,23 @@ const styles = StyleSheet.create({
   logo: {
     width: 180,
     height: 180,
-    marginBottom: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 35,
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    color: '#FFD700', // dorado
+    marginBottom: 20,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 4, height: 4 },
+    textShadowRadius: 15,
+  },
+  subtitle: {
+    fontSize: 23,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 20,
-  },
+    marginBottom: 15,
+  },  
   input: {
     width: '100%',
     height: 50,

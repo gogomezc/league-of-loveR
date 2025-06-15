@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { auth, db } from '../credenciales';
 import { doc, getDoc } from 'firebase/firestore';
+
+const { width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 export default function Navbar() {
   const navigation = useNavigation();
   const uid = auth.currentUser?.uid;
   const [photoURL, setPhotoURL] = useState(null);
+  
 
   useEffect(() => {
     if (!uid) return;
@@ -31,7 +35,7 @@ export default function Navbar() {
   return (
     <View style={styles.navbar}>
     {/* Logo izquierda con imagen */}
-        <Image source={require('../assets/logosf.png')} style={styles.logoImage} />
+      <Image source={require('../assets/titulologo.png')} style={styles.logoImage} />
 
         {/* Avatar derecha */}
       <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
@@ -51,10 +55,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 10,
+    paddingTop: 30,
     backgroundColor: 'transparent',
     zIndex: 99,
+    width: width * 0.97,
+    height: height * 0.2,
   },
   logo: {
     fontSize: 20,
@@ -62,24 +67,24 @@ const styles = StyleSheet.create({
     color: '#c89b3c',
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 15,
     borderWidth: 1,
     borderColor: '#c89b3c',
   },
   avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 15,
     backgroundColor: '#555',
     borderWidth: 1,
     borderColor: '#c89b3c',
   },
   logoImage: {
-  width: 100,
-  height: 80,
-  resizeMode: 'contain',
-
-}
+    width: 150,
+    height: 95,
+    resizeMode: 'contain',
+    marginLeft: 10,
+  },
 });
