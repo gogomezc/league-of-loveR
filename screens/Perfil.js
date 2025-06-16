@@ -239,13 +239,19 @@ export default function Perfil({ navigation }) {
       const rankedRes = await axios.get(
         `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${riotToken}`
       );
-    
-      const queue = rankedRes.data[0].queueType;
-      const division = rankedRes.data[0].tier;
-      const rank = rankedRes.data[0].rank;
-      const leaguePoints = rankedRes.data[0].leaguePoints;
-      console.log("Tipo de cola:", queue, "División:", division, "Rank:", rank, "LP:", leaguePoints);
-
+      try{
+        const queue = rankedRes.data[0].queueType;
+        const division = rankedRes.data[0].tier;
+        const rank = rankedRes.data[0].rank;
+        const leaguePoints = rankedRes.data[0].leaguePoints;
+        console.log("Tipo de cola:", queue, "División:", division, "Rank:", rank, "LP:", leaguePoints);
+      } catch (error) {
+        console.error("Error al obtener información de rango:", error);
+        const queue = "N/A";
+        const division = "N/A";
+        const rank = "N/A";
+        const leaguePoints = "N/A";
+      }
       setRankInfo({
         queueType: queue,
         tier: division,
@@ -265,12 +271,42 @@ export default function Perfil({ navigation }) {
 
       // AQUÍ VA LA LÓGICA PARA RECORRER LOS CAMPEONES QUE YA TENGO GUARDADOS EN const [champions, setChampions] = useState([]) que las trae de la api de ddragon; CON EL ID DE championId
       // Buscar en la lista de campeones el que coincide con el ID
+    
+      const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+      const latestVersion = versionsRes.data[0];
+      setVersion(latestVersion);
+      const champsRes = await axios.get(
+        `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/es_ES/champion.json`
+      );
+
+      let champData = null;
+      for (const champKey in champsRes.data.data) {
+        if (champsRes.data.data[champKey].key === championId.toString()) {
+          console.log("Campeón encontrado:", champKey);
+          /*
+          const champ = champsRes.data.data[champKey];
+          champData = {
+            championId,
+            championLevel,
+            championPoints,
+            name: champ.name,
+            title: champ.title,
+            image: `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/champion/${champ.id}.png`
+          };
+          break;
+          */
+        }
+      }
+ 
+
+      /*
       const champData = champions.find(champ => champ.key == championId);
       if (!champData) {
         console.log(`No se encontró el campeón con ID: ${championId}`);
       } else {
         console.log("Campeón más jugado:", champData.name, "Leyenda:", champData.title, "Imagen:", champData.image);
       }
+      
      
       if (champData) {
         setMasteryChampion({
@@ -283,24 +319,8 @@ export default function Perfil({ navigation }) {
         });
       }
 
+        */
 
-
-      /*
-      //setMasteryChampion(topChampion);
-
-      // Última partida (historial)
-      const matchIdsRes = await axios.get(
-        `https://${riotRegion}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=1&api_key=${riotToken}`
-      );
-
-      const matchId = matchIdsRes.data[0];
-      const matchDetail = await axios.get(
-        `https://${riotRegion}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${riotToken}`
-      );
-
-      const timestamp = matchDetail.data.info.gameEndTimestamp;
-      //setLastMatchDate(new Date(timestamp).toLocaleString());
-      */
     } catch (err) {
       console.error(err);
       console.log("Error al obtener datos de Riot:", err.response?.data || err.message);
@@ -510,7 +530,8 @@ export default function Perfil({ navigation }) {
 
           {rankInfo && (
             <Text style={{ color: 'white', marginTop: 5 }}>
-              🏅 División: {rankInfo.queueType}: -- {rankInfo.tier} {rankInfo.rank} ({rankInfo.leaguePoints} LP)
+              💻 INVOCADOR: {riotGameName} #{riotTagLine} {'\n'}
+              🏅 División: {rankInfo.queueType}: {rankInfo.tier} {rankInfo.rank} ({rankInfo.leaguePoints} LP)
             </Text>
           )}
 
