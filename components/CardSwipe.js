@@ -87,7 +87,7 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
         <View style={styles.info}>
           <Text style={styles.nombre}>
             {usuario.name}
-            {usuario.nickname ? `(${usuario.nickname})` : ''}, {usuario.age}     {usuario.estado_linkeado ? '✅' : ''}
+            {usuario.nickname ? `(${usuario.nickname})` : ''}, {usuario.age}  {usuario.estado_linkeado ? '✅' : ''}
           </Text>
           <Text style={styles.campo}>Género: <Text style={styles.valor}>{generoIcons[usuario.genero]}</Text></Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
@@ -277,10 +277,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#c89b3c',
     fontWeight: 'bold',
-    marginTop: 4,
   },
   valor: {
+    fontSize: 16,
     color: '#fff',
     fontWeight: 'normal',
+  
   },
 });

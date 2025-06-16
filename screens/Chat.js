@@ -5,10 +5,11 @@ import { doc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 
 
-export default function Chat({ route }) {
+export default function Chat({ navigation, route }) {
   const { chatId, otherUser } = route.params; // chatId y datos del otro usuario
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -54,9 +55,14 @@ export default function Chat({ route }) {
         <View style={styles.header}>
             <Image source={{ uri: otherUser.photoURL }} style={styles.headerAvatar} />
             <View>
-                <Text style={styles.headerName}>{otherUser.name}</Text>
-                {/* agregar aquí mas cosas como: estado en línea, iconos, etc */}
-            </View>
+                <Text style={styles.headerName}>{otherUser.name} </Text>
+            </View> 
+            <TouchableOpacity
+                  style={styles.volverBoton}
+                  onPress={() => navigation.navigate('Matches')}
+                >
+                  <FontAwesome name="arrow-right" size={26} color="#fff" />
+            </TouchableOpacity> 
         </View>
         
         {/* Mensajes */}
@@ -170,5 +176,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: 8,
     borderRadius: 24,
+  },
+  volverBoton: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    position: 'absolute',
+    right: 20,
+    padding: 10,
+    borderRadius: 30,
+    zIndex: 1000, // Asegura que el botón esté por encima de otros elementos
+    elevation: 5, // Para Android
+    shadowColor: '#000', // Sombra para iOS
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+
   },
 });

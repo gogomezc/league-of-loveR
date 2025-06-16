@@ -21,6 +21,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../credenciales';
 import { ActivityIndicator } from 'react-native';
 
+
 export default function Registrarse({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
