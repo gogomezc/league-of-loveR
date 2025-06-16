@@ -9,6 +9,7 @@ import Animated, {
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = width * 0.3;
 
 export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version }) {
@@ -86,9 +87,8 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
         <View style={styles.info}>
           <Text style={styles.nombre}>
             {usuario.name}
-            {usuario.nickname ? ` (${usuario.nickname})` : ''}, {usuario.age}
+            {usuario.nickname ? `(${usuario.nickname})` : ''}, {usuario.age}     {usuario.estado_linkeado ? '✅' : ''}
           </Text>
-          <Text style={styles.campo}>Edad: <Text style={styles.valor}>{usuario.age} años</Text></Text>
           <Text style={styles.campo}>Género: <Text style={styles.valor}>{generoIcons[usuario.genero]}</Text></Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
             <Text style={styles.campo}>Rol favorito: </Text>
@@ -148,8 +148,69 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
               />
             )}
           </View>
-        
-         
+          
+          {usuario.estado_linkeado && (
+            <View style={{ flexDirection: 'column', alignItems: 'center', marginTop: 6 }}>
+              {/* Info de cuenta LoL */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                {usuario.summonerIcon && (
+                  <Image
+                    source={{
+                      uri: `http://ddragon.leagueoflegends.com/cdn/13.20.1/img/profileicon/${usuario.summonerIcon}.png`,
+                    }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 30,
+                      marginRight: 12,
+                      borderWidth: 2,
+                      borderColor: '#FFD700',
+                      backgroundColor: '#000',
+                    }}
+                  />
+                )}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                    {usuario.riotGameName}#{usuario.riotTagLine}
+                  </Text>
+                  <Text style={{ color: '#ccc', marginTop: 2, fontSize: 14 }}>
+                    Nivel: {usuario.summonerLevel}
+                  </Text>
+                  <Text style={{ color: '#ccc', fontSize: 14 }}>
+                    División: {usuario.tier} {usuario.rank} ({usuario.leaguePoints} LP)
+                  </Text>
+                </View>
+              </View>
+
+              {/* Mejor campeón */}
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {usuario.i_mejor_champ && (
+                  <Image
+                    source={{ uri: usuario.i_mejor_champ }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 12,
+                      marginRight: 12,
+                      borderWidth: 2,
+                      borderColor: '#FFD700',
+                      backgroundColor: '#000',
+                    }}
+                  />
+                )}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>🏆 Mejor campeón:</Text>
+                  <Text style={{ color: '#ccc', fontSize: 14, marginTop: 2 }}>
+                    {usuario.n_mejor_champ} - {usuario.t_mejor_champ}
+                  </Text>
+                  <Text style={{ color: '#ccc', fontSize: 14, marginTop: 2 }}>
+                    Maestría: {usuario.l_mejor_champ} | Puntos: {usuario.ptos_mejor_champ}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
         </View>
       </Animated.View>
     </GestureDetector>
@@ -158,14 +219,14 @@ export default function CardSwipe({ usuario, onSwipeLeft, onSwipeRight, version 
 
 const styles = StyleSheet.create({
   card: {
-    width: width * 0.95,
+    width: width * 0.9,
     // Elimina la altura fija para que el card crezca según el contenido
-    // height: width * 1.05,
+    height: height * 0.82,
     backgroundColor: '#0a0a0a',
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: 12,
+    padding: 16,
     position: 'absolute',
     elevation: 10,
     shadowColor: '#000',
@@ -173,8 +234,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
     borderBlockColor: '#c89b3c',
-    borderWidth: 3,
-
+    borderWidth: 4,
+    borderHeight: 4,
+    borderColor: '#c89b3c',
 
   },
   foto: {
