@@ -33,9 +33,10 @@ export default function Perfil({ navigation }) {
   const [riotGameName, setRiotGameName] = useState('');
   const [riotTagLine, setRiotTagLine] = useState('');
   const [riotRegion, setRiotRegion] = useState('americas');
-  const [masteryChampion, setMasteryChampion] = useState(null);
   const [rankInfo, setRankInfo] = useState(null);
   const [championsLoading, setChampionsLoading] = useState(true);
+  const [loadingVincular, setLoadingVincular] = useState(false);
+
 
   
 
@@ -51,6 +52,7 @@ export default function Perfil({ navigation }) {
     amigosvida: require('../assets/busca-amigos-para-vida.png'),
     amor: require('../assets/busca-amor.png'),
   };
+
   const [loadingGuardar, setLoadingGuardar] = useState(false);
 
 
@@ -63,7 +65,7 @@ export default function Perfil({ navigation }) {
         const latestVersion = versionsRes.data[0];
         setVersion(latestVersion);
         const champsRes = await axios.get(
-          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/es_ES/champion.json`
         );
         const champsArray = Object.values(champsRes.data.data).map(item => (
           {
@@ -172,7 +174,10 @@ export default function Perfil({ navigation }) {
       return;
     }
 
+
+    // hacemos la carga de sistema pq fallaba cuando no se hace la carga antes de subir imagen a cloudinary
     setLoading(true);
+    // hacemos la subida de la imagen a cloudinary
     try {
       const uri = result.assets[0].uri;
       if (!uri) throw new Error('No se obtuvo la URI de la imagen');
@@ -198,6 +203,7 @@ export default function Perfil({ navigation }) {
   };
 
   const obtenerDatosJugador = async () => {
+    setLoadingVincular(true);
     try {
       if (!riotGameName || !riotTagLine || !riotRegion) {
         Alert.alert("Faltan datos", "Debes ingresar nombre, tagline y región");
@@ -228,6 +234,7 @@ export default function Perfil({ navigation }) {
       const summonerRes = await axios.get(
         `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}?api_key=${riotToken}`
       );
+    
       const summonerId = summonerRes.data.id;
       const summonerLevel = summonerRes.data.summonerLevel;
       const summonerIcon = summonerRes.data.profileIconId;
@@ -235,29 +242,40 @@ export default function Perfil({ navigation }) {
       console.log("Nivel de invocador:", summonerLevel);
       console.log("ID Icono de invocador:", summonerIcon);
 
-      // gracias al summonerID podemos obtener la división (liga)
+
+      // gracias al summonerID podemos obtener la división (liga), pero esto es excluyente pq no todos juegan ranked
+      // ESTA LÓGICA ME QUEDO BIEN CABRONAAAAAAA, NO SE PODIA TRAER UN JUGADOR SIN HISTORIAL DE RANKED, AHORA SI SE PUEDEEEE!
+      //MANEJAMOS LA CONDIUCION BASADO EN UNA CONSULTA QUE ES INDEPENDIENTE PERO ANTERIORMENTE NO SE PODIA
       const rankedRes = await axios.get(
         `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${riotToken}`
       );
-    
-      const queue = rankedRes.data[0].queueType;
-      const division = rankedRes.data[0].tier;
-      const rank = rankedRes.data[0].rank;
-      const leaguePoints = rankedRes.data[0].leaguePoints;
-      console.log("Tipo de cola:", queue, "División:", division, "Rank:", rank, "LP:", leaguePoints);
-
-      setRankInfo({
-        queueType: queue,
-        tier: division,
-        rank: rank,
-        leaguePoints: leaguePoints
-      });
-
-      
+      let queue;
+      let division;
+      let rank;
+      let leaguePoints = 0;
+      console.log("Datos de partidas clasificatorias:", rankedRes.data);
+      if (rankedRes.data.length === 0) {
+        console.log("El jugador no tiene partidas clasificatorias.");
+        Alert.alert("No se encontraron partidas clasificatorias", "El jugador no tiene partidas clasificatorias.");
+        queue = '';
+        division = 'Unranked';
+        rank = '';
+        leaguePoints = 0;
+        setLoadingVincular(false);
+      } else {
+        queue = rankedRes.data[0].queueType || '';
+        division = rankedRes.data[0].tier || 'Unranked';
+        rank = rankedRes.data[0].rank || '';
+        leaguePoints = rankedRes.data[0].leaguePoints || 0;
+      }
+      console.log("Queue Type:", queue, "División:", division, "Rank:", rank, "LP:", leaguePoints);
       // Champion con más maestría
       const masteryRes = await axios.get(
         `https://${platformRouting[riotRegion]}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}?api_key=${riotToken}`
       );
+
+      
+      // rescato el 0 pq trae todos los campeones, pero solo me interesa el primero
       const championId = masteryRes.data[0].championId;
       const championLevel = masteryRes.data[0].championLevel;
       const championPoints = masteryRes.data[0].championPoints;
@@ -265,46 +283,77 @@ export default function Perfil({ navigation }) {
 
       // AQUÍ VA LA LÓGICA PARA RECORRER LOS CAMPEONES QUE YA TENGO GUARDADOS EN const [champions, setChampions] = useState([]) que las trae de la api de ddragon; CON EL ID DE championId
       // Buscar en la lista de campeones el que coincide con el ID
-      const champData = champions.find(champ => champ.key == championId);
-      if (!champData) {
-        console.log(`No se encontró el campeón con ID: ${championId}`);
-      } else {
-        console.log("Campeón más jugado:", champData.name, "Leyenda:", champData.title, "Imagen:", champData.image);
-      }
-     
-      if (champData) {
-        setMasteryChampion({
-          championId,
-          championLevel,
-          championPoints,
-          name: champData.name,
-          title: champData.title,
-          image: champData.image
-        });
-      }
-
-
-
-      /*
-      //setMasteryChampion(topChampion);
-
-      // Última partida (historial)
-      const matchIdsRes = await axios.get(
-        `https://${riotRegion}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=1&api_key=${riotToken}`
+      // reutulice el código de la consulta appi ddragon que se usaaba para listar los champs en el picker
+      const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+      const latestVersion = versionsRes.data[0];
+      setVersion(latestVersion);
+      const champsRes = await axios.get(
+        `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/es_ES/champion.json`
       );
 
-      const matchId = matchIdsRes.data[0];
-      const matchDetail = await axios.get(
-        `https://${riotRegion}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${riotToken}`
-      );
+      let champData = null;
+      for (const champKey in champsRes.data.data) {
+        if (champsRes.data.data[champKey].key === championId.toString()) {
+          console.log("Campeón encontrado:", champKey);
+          champData = {
+            key: champsRes.data.data[champKey].id,
+            name: champsRes.data.data[champKey].name,
+            title: champsRes.data.data[champKey].title,
+            image: `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/champion/${champsRes.data.data[champKey].id}.png`
+          };
 
-      const timestamp = matchDetail.data.info.gameEndTimestamp;
-      //setLastMatchDate(new Date(timestamp).toLocaleString());
-      */
+        }
+      }
+
+      setPerfil({
+        ...perfil,
+        puuid: puuid,
+        riotGameName: riotGameName,
+        riotTagLine: riotTagLine,
+        riotRegion: riotRegion,
+        summonerLevel: summonerLevel,
+        summonerIcon: summonerIcon,
+        summonerId: summonerId,
+        queueType: queue,
+        tier: division,
+        rank: rank,
+        leaguePoints: leaguePoints,
+        k_mejor_champ: champData.key,
+        n_mejor_champ: champData.name,
+        l_mejor_champ: championLevel,
+        ptos_mejor_champ: championPoints, 
+        t_mejor_champ: champData.title,
+        i_mejor_champ: champData.image,
+        estado_linkeado: true // agregamos un campo para indicar que la cuenta esta vinculada, dps en el card esto nos va a servir para mostrar los que tienen sin problema respecto de con los que no tengan data del juego
+      });
+
+      setRankInfo({
+        puuid: puuid,
+        riotGameName: riotGameName,
+        riotTagLine: riotTagLine,
+        riotRegion: riotRegion,
+        summonerLevel: summonerLevel,
+        summonerIcon: summonerIcon,
+        summonerId: summonerId,
+        queueType: queue,
+        tier: division,
+        rank: rank,
+        leaguePoints: leaguePoints,
+        k_mejor_champ: champData.key,
+        n_mejor_champ: champData.name,
+        l_mejor_champ: championLevel,
+        ptos_mejor_champ: championPoints, 
+        t_mejor_champ: champData.title,
+        i_mejor_champ: champData.image
+      })
+      
+
     } catch (err) {
       console.error(err);
       console.log("Error al obtener datos de Riot:", err.response?.data || err.message);
       Alert.alert("No se pudo obtener información del jugador", "Verifica que el nombre de invocador, tagline y región sean correctos, si el error persiste, intenta más tarde.");
+    } finally {
+      setLoadingVincular(false);
     }
   };
 
@@ -508,19 +557,49 @@ export default function Perfil({ navigation }) {
             )}
           </TouchableOpacity>
 
-          {rankInfo && (
-            <Text style={{ color: 'white', marginTop: 5 }}>
-              🏅 División: {rankInfo.queueType}: -- {rankInfo.tier} {rankInfo.rank} ({rankInfo.leaguePoints} LP)
-            </Text>
+          
+
+          {perfil.puuid && (
+            <View style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              padding: 15,
+              borderRadius: 12,
+              marginTop: 30,
+              width: '100%',
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                {perfil.summonerIcon && (
+                  <Image
+                    source={{ uri: `http://ddragon.leagueoflegends.com/cdn/13.20.1/img/profileicon/${perfil.summonerIcon}.png` }}
+                    style={{ width: 80, height: 80, borderRadius: 40, marginRight: 15, borderWidth: 1, borderColor: '#FFD700' }}
+                  />
+                )}
+                <View>
+                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                    {perfil.riotGameName}#{perfil.riotTagLine}
+                  </Text>
+                  <Text style={{ color: '#ccc' }}>Nivel: {perfil.summonerLevel}</Text>
+                  <Text style={{ color: '#ccc' }}>
+                    División: {perfil.tier} {perfil.rank} ({perfil.leaguePoints} LP)
+                  </Text>
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                {perfil.i_mejor_champ && (
+                  <Image
+                    source={{ uri: perfil.i_mejor_champ }}
+                    style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15, borderWidth: 1, borderColor: '#FFD700' }}
+                  />
+                )}
+                <View>
+                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>🏆 Mejor campeón:</Text>
+                  <Text style={{ color: '#ccc' }}>{perfil.n_mejor_champ} - {perfil.t_mejor_champ}</Text>
+                  <Text style={{ color: '#ccc' }}>Maestría: {perfil.l_mejor_champ} | Puntos: {perfil.ptos_mejor_champ}</Text>
+                </View>
+              </View>
+            </View>
           )}
-
-          {masteryChampion && (
-            <Text style={{ color: 'white', marginTop: 10 }}>
-              🏆 Campeón más jugado (maestría): ID {masteryChampion.championId} con {masteryChampion.championPoints} puntos
-            </Text>
-          )}
-
-
 
 
           <TouchableOpacity style={styles.button} onPress={guardarCambios}>
@@ -537,12 +616,19 @@ export default function Perfil({ navigation }) {
 
         </ScrollView>
       </KeyboardAvoidingView>
+      
       {loadingGuardar && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#FFD700" />
         </View>
       )}
-
+      {loadingVincular && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#00BFFF" />
+          <Text style={{ color: 'white', marginTop: 10 }}>Vinculando cuenta de LoL...</Text>
+        </View>
+      )}
+  
     </ImageBackground>
   );
 }

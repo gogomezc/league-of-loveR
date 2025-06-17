@@ -21,6 +21,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../credenciales';
 import { ActivityIndicator } from 'react-native';
 
+
 export default function Registrarse({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,10 +105,29 @@ export default function Registrarse({ navigation }) {
         swipes: { like: [], dislike: [] },
         matches: {},
         version,
+        // de aqui va lo nuevo de la integracion de los datos de invocador desde la api de riot
+        puuid: '',
+        riotGameName: '',
+        riotTagLine: '',
+        riotRegion: 'americas', // Región por defecto
+        summonerId: '',
+        summonerLevel: 0,
+        summonerIcon: '',
+        queueType: '',
+        tier: '',
+        rank: '', 
+        leaguePoints: 0,
+        k_mejor_champ: '',
+        n_mejor_champ: '',
+        l_mejor_champ: 0,
+        ptos_mejor_champ: 0, 
+        t_mejor_champ: '',
+        i_mejor_champ: '',
+        estado_linkeado: false, // Estado del perfil de invocador enlazado
         
       });
 
-      Alert.alert('REGISTRO EXITOSO ✅', '\n  💘 ¡Bienvenidx a League of Love! 💘\n\n         Ya puedes iniciar sesión ➡️\n');
+      Alert.alert('REGISTRO EXITOSO ✅', '\n  💘 ¡Bienvenidx a League of Love!\n\n         Ya puedes iniciar sesión ➡️\n');
       navigation.navigate('Login');
     } catch (error) {
       console.error(error);

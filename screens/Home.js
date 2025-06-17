@@ -30,6 +30,7 @@ import Modal from 'react-native-modal';
 
 
 
+
 export default function Home() {
   const [usuarios, setUsuarios] = useState([]);
   const [index, setIndex] = useState(0);
@@ -41,6 +42,8 @@ export default function Home() {
   const [filtroRol, setFiltroRol] = useState('');     
   const [filtroGenero, setFiltroGenero] = useState('');
   const [filtroBusca, setFiltroBusca] = useState('');
+
+
   
   useEffect(() => {
     const fetchVersion = async () => {
