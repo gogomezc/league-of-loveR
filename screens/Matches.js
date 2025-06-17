@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
 import { auth, db } from '../credenciales';
-import { collection, doc, getDocs, getDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { Alert } from 'react-native';
 
 const rolImages = {
   top: require('../assets/top.png'),
@@ -84,6 +85,49 @@ export default function Matches({ navigation }) {
     fetchMatches();
   }, []);
 
+
+  const eliminarMatch = (matchId) => {
+    Alert.alert(
+      'Eliminar Match 💔',
+      '¿Estás seguro de que quieres eliminar este match? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Si, Eliminar Match',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const uid = auth.currentUser.uid;
+              const userRef = doc(db, 'users', uid);
+              const matchUserRef = doc(db, 'users', matchId);
+
+              const [userSnap, matchSnap] = await Promise.all([getDoc(userRef), getDoc(matchUserRef)]);
+              const userData = userSnap.data();
+              const matchData = matchSnap.data();
+
+              const newUserMatches = { ...userData.matches };
+              delete newUserMatches[matchId];
+
+              const newMatchMatches = { ...matchData.matches };
+              delete newMatchMatches[uid];
+
+              await Promise.all([
+                updateDoc(userRef, { matches: newUserMatches }),
+                updateDoc(matchUserRef, { matches: newMatchMatches }),
+              ]);
+
+              setMatches(prev => prev.filter(m => m.id !== matchId));
+            } catch (error) {
+              console.error('Error al eliminar match:', error);
+              Alert.alert('Error', 'No se pudo eliminar el match.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+
   const renderItem = ({ item }) => {
     const champIconUrl =
       item.champFavorito && version
@@ -91,8 +135,11 @@ export default function Matches({ navigation }) {
         : null;
 
     return (
+
+      <View style={styles.item}>
+
       <TouchableOpacity
-        style={styles.item}
+        style={{flex: 1}}
         onPress={() =>
           navigation.navigate('Chat', {
             chatId: item.chatId,
@@ -126,6 +173,13 @@ export default function Matches({ navigation }) {
           </View>
         </View>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => eliminarMatch(item.id)}>
+        <Icon name="delete" size={28} color="red" />
+      </TouchableOpacity>
+
+
+      </View>
     );
   };
 

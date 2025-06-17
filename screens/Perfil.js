@@ -283,7 +283,7 @@ export default function Perfil({ navigation }) {
 
       // AQUÍ VA LA LÓGICA PARA RECORRER LOS CAMPEONES QUE YA TENGO GUARDADOS EN const [champions, setChampions] = useState([]) que las trae de la api de ddragon; CON EL ID DE championId
       // Buscar en la lista de campeones el que coincide con el ID
-      // reutulice el código de la consulta appi ddragon que se usaaba para listar los champs en el picker
+      // reutilice el código de la consulta api ddragon que se usaba para listar los champs en el picker
       const versionsRes = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
       const latestVersion = versionsRes.data[0];
       setVersion(latestVersion);
