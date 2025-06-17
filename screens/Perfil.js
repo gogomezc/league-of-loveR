@@ -38,8 +38,6 @@ export default function Perfil({ navigation }) {
   const [loadingVincular, setLoadingVincular] = useState(false);
 
 
-  
-
   const rolImages = {
     top: require('../assets/top.png'),
     jungla: require('../assets/jungla.png'),
@@ -512,8 +510,51 @@ export default function Perfil({ navigation }) {
           </View>  
 
 
-
           <Text style={styles.title2}>PERFIL DE LOL</Text>
+
+          {perfil.puuid && (
+            <View style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              padding: 15,
+              borderRadius: 12,
+              marginTop: 10,
+              marginBottom: 20,
+              width: '100%',
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                {perfil.summonerIcon && (
+                  <Image
+                    source={{ uri: `http://ddragon.leagueoflegends.com/cdn/13.20.1/img/profileicon/${perfil.summonerIcon}.png` }}
+                    style={{ width: 80, height: 80, borderRadius: 40, marginRight: 15, borderWidth: 1, borderColor: '#FFD700' }}
+                  />
+                )}
+                <View>
+                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                    {perfil.riotGameName}#{perfil.riotTagLine}
+                  </Text>
+                  <Text style={{ color: '#ccc' }}>Nivel: {perfil.summonerLevel}</Text>
+                  <Text style={{ color: '#ccc' }}>
+                    División: {perfil.tier} {perfil.rank} ({perfil.leaguePoints} LP)
+                  </Text>
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                {perfil.i_mejor_champ && (
+                  <Image
+                    source={{ uri: perfil.i_mejor_champ }}
+                    style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15, borderWidth: 1, borderColor: '#FFD700' }}
+                  />
+                )}
+                <View>
+                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>🏆 Mejor campeón:</Text>
+                  <Text style={{ color: '#ccc' }}>{perfil.n_mejor_champ} - {perfil.t_mejor_champ}</Text>
+                  <Text style={{ color: '#ccc' }}>Maestría: {perfil.l_mejor_champ} | Puntos: {perfil.ptos_mejor_champ}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
 
           <TextInput
             style={styles.input}
@@ -556,50 +597,6 @@ export default function Perfil({ navigation }) {
               <Text style={styles.buttonText}>Vincular cuenta LoL 🔗</Text>
             )}
           </TouchableOpacity>
-
-          
-
-          {perfil.puuid && (
-            <View style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              padding: 15,
-              borderRadius: 12,
-              marginTop: 30,
-              width: '100%',
-            }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                {perfil.summonerIcon && (
-                  <Image
-                    source={{ uri: `http://ddragon.leagueoflegends.com/cdn/13.20.1/img/profileicon/${perfil.summonerIcon}.png` }}
-                    style={{ width: 80, height: 80, borderRadius: 40, marginRight: 15, borderWidth: 1, borderColor: '#FFD700' }}
-                  />
-                )}
-                <View>
-                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
-                    {perfil.riotGameName}#{perfil.riotTagLine}
-                  </Text>
-                  <Text style={{ color: '#ccc' }}>Nivel: {perfil.summonerLevel}</Text>
-                  <Text style={{ color: '#ccc' }}>
-                    División: {perfil.tier} {perfil.rank} ({perfil.leaguePoints} LP)
-                  </Text>
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                {perfil.i_mejor_champ && (
-                  <Image
-                    source={{ uri: perfil.i_mejor_champ }}
-                    style={{ width: 80, height: 80, borderRadius: 10, marginRight: 15, borderWidth: 1, borderColor: '#FFD700' }}
-                  />
-                )}
-                <View>
-                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>🏆 Mejor campeón:</Text>
-                  <Text style={{ color: '#ccc' }}>{perfil.n_mejor_champ} - {perfil.t_mejor_champ}</Text>
-                  <Text style={{ color: '#ccc' }}>Maestría: {perfil.l_mejor_champ} | Puntos: {perfil.ptos_mejor_champ}</Text>
-                </View>
-              </View>
-            </View>
-          )}
 
 
           <TouchableOpacity style={styles.button} onPress={guardarCambios}>
