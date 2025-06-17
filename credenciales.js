@@ -9,8 +9,10 @@ import {
 } from '@env';
 
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const firebaseConfig = {
   apiKey:              FIREBASE_API_KEY,
@@ -22,8 +24,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Exporta los servicios que uses
-export const auth    = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
+
 export const db      = getFirestore(app);
 
 export const uploadImageToCloudinary = async (uri) => {         //esta función sube una imagen a Cloudinary, y devuelve la URL de la imagen subida. No hicimos esta función, Cloudinary entrega esta función por defecto.

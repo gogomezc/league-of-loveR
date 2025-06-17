@@ -22,6 +22,7 @@ import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import axios from 'axios'; // Asegúrate de tener axios instalado
 import { Picker } from '@react-native-picker/picker'; // Asegúrate de tener @react-native-picker/picker instalado
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { signOut } from 'firebase/auth';
 
 
 export default function Perfil({ navigation }) {
@@ -193,7 +194,8 @@ export default function Perfil({ navigation }) {
   
   const cerrarSesion = async () => {
     try {
-      navigation.navigate('Login');
+      await signOut(auth);
+      // No navegues a Login, App.js se encargará de eso
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'No se pudo cerrar sesión.');
