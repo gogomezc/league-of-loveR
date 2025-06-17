@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 30,
+    paddingTop: 60,
     backgroundColor: 'transparent',
     zIndex: 99,
     width: width * 0.97,

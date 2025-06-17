@@ -9,8 +9,10 @@ import {
 } from '@env';
 
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const firebaseConfig = {
   apiKey:              FIREBASE_API_KEY,
@@ -22,21 +24,23 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Exporta los servicios que uses
-export const auth    = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
+
 export const db      = getFirestore(app);
 
-export const uploadImageToCloudinary = async (uri) => {
+export const uploadImageToCloudinary = async (uri) => {         //esta función sube una imagen a Cloudinary, y devuelve la URL de la imagen subida. No hicimos esta función, Cloudinary entrega esta función por defecto.
   const data = new FormData();
   data.append('file', {
     uri,
     type: 'image/jpeg',
     name: 'photo.jpg',
   });
-  data.append('upload_preset', 'perfil_usuario'); // Cambia esto
-  data.append('cloud_name', 'dwkn1vhj7'); // Cambia esto
+  data.append('upload_preset', 'perfil_usuario'); // poner el nombre del preset de subida que hayas creado en Cloudinary
+  data.append('cloud_name', 'dwkn1vhj7'); // poner el nombre de tu nube de Cloudinary
 
-  const res = await fetch('https://api.cloudinary.com/v1_1/dwkn1vhj7/image/upload', {
+  const res = await fetch('https://api.cloudinary.com/v1_1/dwkn1vhj7/image/upload', { 
     method: 'POST',
     body: data,
   });
